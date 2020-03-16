@@ -1,6 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import { Menu, Input, Button } from 'antd';
+import { Menu, Input, Button, Row, Col, Card, Avatar, Form } from 'antd';
+import LoginForm from "./LoginForm";
+import UserProfiles from "../components/UserProfiles"
+
+const dummy= {
+    nickname: "오형남",
+    Post:[],
+    Following:[],
+    Follower:[],
+    isLoggedIn: false,
+
+}
 
 const AppLayout = ({ children }) => {
     return (
@@ -12,8 +23,22 @@ const AppLayout = ({ children }) => {
                     <Input.Search enterButton style={{ verticalAlign: 'middle' }} />
                 </Menu.Item>
             </Menu>
+
             <Link href="/signup"><a><Button>회원가입</Button></a></Link>
-            {children}
+            <Row gutter = {10}>
+                <Col xs={24} md={6}>
+                    {dummy.isLoggedIn
+                        ? <UserProfiles/>
+                        : <LoginForm/>
+                    }
+                </Col>
+                <Col xs={24} md={12}>
+                    {children}
+                </Col>
+                <Col xs={24} md={6}>
+                    <Link href="https://www.zerocho.com"><a target="_blank">Made be Hyoungnam</a></Link>
+                </Col>
+            </Row>
         </div>
     );
 };
