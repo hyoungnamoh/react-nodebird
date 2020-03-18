@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { Button, Checkbox, Form, Input } from 'antd';
+import {useDispatch} from 'react-redux';
+import {SIGN_UP, signUpAction} from "../reducers/user";
 
 const Signup = () => {
-    const [passwordCheck, setPasswordCheck] = useState('');
-    const [term, setTerm] = useState(false);
-    const [passwordError, setPasswordError] = useState(false);
-    const [termError, setTermError] = useState(false);
+    //redux
+    const dispatch = useDispatch();
 
+    //custom hook
     const useInput = useCallback((initValue = null) => {
         const [value, setter] = useState(initValue);
         const handler = (e) => {
@@ -15,10 +16,32 @@ const Signup = () => {
         return [value, handler];
     }, []);
 
+
+    //사용할 state들
+    const [passwordCheck, setPasswordCheck] = useState('');
+    const [term, setTerm] = useState(false);
+    const [passwordError, setPasswordError] = useState(false);
+    const [termError, setTermError] = useState(false);
     const [id, onChangeId] = useInput('');
     const [nick, onChangeNick] = useInput('');
     const [password, onChangePassword] = useInput('');
 
+
+    //비밀번호, 비밀번호 확인 일치 여부 확인
+    const onChangePasswordCheck = useCallback((e) => {
+        setPasswordError(e.target.value !== password);
+        setPasswordCheck(e.target.value);
+    }, [passwordCheck]);
+
+    //체크박스 눌렀을때
+    const onChangeTerm = useCallback((e) => {
+        setTermError(false);
+        setTerm(e.target.checked);
+        console.log(e.target.checked);
+    }, [term, termError]);
+
+
+    //회원가입 버튼
     const onSubmit = useCallback((e) => {
         e.preventDefault();
         if (password !== passwordCheck) {
@@ -34,18 +57,13 @@ const Signup = () => {
             passwordCheck,
             term,
         });
-    }, [password,passwordCheck]);
+        dispatch(signUpAction({
+            id,
+            password,
+            nick,
+        }));
+    }, [password,passwordCheck, termError]);
 
-    const onChangePasswordCheck = useCallback((e) => {
-        setPasswordError(e.target.value !== password);
-        setPasswordCheck(e.target.value);
-    }, [passwordCheck]);
-
-    const onChangeTerm = useCallback((e) => {
-        setTermError(false);
-        setTerm(e.target.checked);
-        console.log(term);
-    }, []);
 
     return (
         <>

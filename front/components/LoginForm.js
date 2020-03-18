@@ -1,7 +1,8 @@
 import {Button, Form, Input} from "antd";
 import React, {useState, useCallback} from "react";
 import Link from "next/link";
-
+import {useDispatch} from 'react-redux';
+import {loginAction} from '../reducers/user';
 
 const LoginForm = () => {
     const useInput = (initValue = null) => {
@@ -11,11 +12,15 @@ const LoginForm = () => {
         }, []);
         return [value, handler];
     }
-
+    const dispatch = useDispatch();
     const [id, onChangeId] = useInput('');
     const [password, onChangePassword] = useInput('');
+
+
     const onSubmitForm = useCallback((e) => {
         e.preventDefault();
+        //로그인 버튼 누르는 순간 로그인 액션 실행, dummyuser 실행
+        dispatch(loginAction);
         console.log({
             id,password,
         });
