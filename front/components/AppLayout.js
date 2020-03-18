@@ -17,7 +17,7 @@ const AppLayout = ({ children }) => {
                 </Menu.Item>
             </Menu>
 
-            <Link href="/signup"><a><Button>회원가입</Button></a></Link>
+            {!isLoggedIn && <Link href="/signup"><a><Button>회원가입</Button></a></Link>}
             <Row gutter = {10}>
                 <Col xs={24} md={6}>
                     {isLoggedIn

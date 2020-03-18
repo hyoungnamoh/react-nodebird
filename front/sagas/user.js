@@ -22,14 +22,16 @@ function* SignUpAPI() {
 //실제 실행 함수들
 function* signUp() {
     try{
+        yield delay(2000);
         yield call(SignUpAPI);//성공 시 다음 줄 실행
+        throw new Error();
         yield put({
             type: SIGN_UP_SUCCESS //실행
         })
     } catch (e) { //실패 시
-        console.error(e);
         yield put({
-            type: SIGN_UP_FAILURE
+            type: SIGN_UP_FAILURE,
+            error: e
         })
     }
 }

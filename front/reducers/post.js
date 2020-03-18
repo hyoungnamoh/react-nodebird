@@ -1,16 +1,44 @@
 export const initialState = {
     mainPosts: [{
+        id:1,
         User: {
             id:1,
             nickName: "오형남",
         },
         content: "첫번째 게시물",
         img: "",
+        Comments: [],
     }], //화면에 보일 포스트들
     imagePaths:[], //미리보기 이미지 경로
-    addPostError: false, //포스트 업로드 실패 사유
+    addPostErrorReason: false, //포스트 업로드 실패 사유
     isAddingPost: false, //포스트 업로드 중
+    postAdded: false, //포스트 업로드 성공
+    isAddingComment: false,
+    addCommentErrorReason: '',
+    commentAdded: false,
 };
+//추가할 더미 포스트들
+const dummyPost = {
+    id:2,
+    User: {
+        id:1,
+        nickName: '형남',
+    },
+    content: '나는 더미입니다.',
+    Comments:[],
+};
+
+//추가할 더미 댓글
+const dummyComment = {
+    id:1,
+    User: {
+        id: 1,
+        nickName: '형남',
+    },
+    createdAt: new Date(),
+    content: '더미 댓글입니디.'
+}
+
 //포스트 업로드하는 액션
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
@@ -72,34 +100,63 @@ export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 //게시글 수정하는 액션
 
 
-export const addPost = {
-    type: ADD_POST_REQUEST,
-};
-
-// export const addDummy = {
-//     type: ADD_DUMMY,
-//     data: {
-//         content: 'Hello',
-//         UserId: 1,
-//         User: {
-//             nickname: '형남',
-//         },
-//     },
-// };
-
 const reducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_POST_REQUEST: {
             return {
                 ...state,
+                isAddingPost: false,
+                postAdded: false,
+                isLogging: true,
             };
         }
-        // case ADD_DUMMY:{
-        //     return {
-        //         ...state,
-        //         mainPosts: [action.data, ...state.mainPosts]
-        //     };
-        // }
+        case ADD_POST_SUCCESS: {
+            return {
+                ...state,
+                isAddingPost: true,
+                mainPosts: [dummyPost, ...state.mainPosts],
+                postAdded: true,
+                isLogging: false,
+            };
+        }
+        case ADD_POST_FAILURE: {
+            return {
+                ...state,
+                isAddingPost: true,
+                addPostErrorReason: action.error,
+                isLogging: false,
+            };
+        }
+        case ADD_COMMENT_REQUEST: {
+            return {
+                ...state,
+                isAddingComment: true,
+                addCommentErrorReason: '',
+                commentAdded: false,
+
+            };
+        }
+        case ADD_COMMENT_SUCCESS: {
+            //불변성 유지
+            const postIndex = state.mainPosts.findIndex(v => v.id=== action.data.postId);
+            const post = state.mainPosts[postIndex];
+            const Comments = [...post.Comments, dummyComment];
+            const mainPosts = [...state.mainPosts];
+            mainPosts[postIndex] = {...post, Comments};
+            return {
+                ...state,
+                isAddingComment: false,
+                mainPosts,
+                commentAdded: true,
+            };
+        }
+        case ADD_COMMENT_FAILURE: {
+            return {
+                ...state,
+                isAddingComment: false,
+                addCommentErrorReason: action.error,
+            };
+        }
         default : {
             return{
                 ...state,

@@ -22,8 +22,7 @@ const LoginForm = () => {
     const dispatch = useDispatch();
 
     //user selector
-    const { isLoggedIn } = useSelector(state => state.user);
-    
+    const { isLoggedIn, isLoggingIn } = useSelector(state => state.user);
     //로그인 버튼
     const onSubmitForm = useCallback((e) => {
         e.preventDefault();
@@ -49,7 +48,7 @@ const LoginForm = () => {
                 <Input name="user-password" value={password} onChange={onChangePassword} type="password"/>
             </div>
             <div style={{marginTop: '10px'}}>
-                <Button type="primary" onClick={onSubmitForm} htmlType="submit" loading={isLoggedIn}>로그인</Button>
+                <Button type="primary" onClick={onSubmitForm} htmlType="submit" loading={isLoggingIn}>로그인</Button>
                 <Link href="/signup"><a><Button>회원가입</Button></a></Link>
             </div>
         </Form>
