@@ -1,4 +1,4 @@
-import {all, takeLatest, fork, put, call, take, takeEvery} from 'redux-saga/effects';
+import {all, takeLatest, fork, put, call, take, takeEvery, delay} from 'redux-saga/effects';
 import {
     LOG_IN_REQUEST,
     LOG_IN_SUCCESS,
@@ -20,9 +20,9 @@ function* SignUpAPI() {
 
 
 //실제 실행 함수들
-function* login() {
+function* signUp() {
     try{
-        yield call(loginAPI);//성공 시 다음 줄 실행
+        yield call(SignUpAPI);//성공 시 다음 줄 실행
         yield put({
             type: SIGN_UP_SUCCESS //실행
         })
@@ -34,9 +34,10 @@ function* login() {
     }
 }
 
-function* signUp() {
+function* login() {
     try{
-        yield call(SignUpAPI);//성공 시 다음 줄 실행
+        // yield call(loginAPI);//성공 시 다음 줄 실행
+        yield delay(3000);
         yield put({
             type: LOG_IN_SUCCESS //실행
         })

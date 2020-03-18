@@ -1,10 +1,11 @@
 import {Button, Form, Input} from "antd";
 import React, {useState, useCallback} from "react";
 import Link from "next/link";
-import {useDispatch} from 'react-redux';
-import {loginAction} from '../reducers/user';
+import {useDispatch, useSelector} from 'react-redux';
+import {LOG_IN_REQUEST} from "../reducers/user";
 
 const LoginForm = () => {
+    //커스텀 훅
     const useInput = (initValue = null) => {
         const [value, setter] = useState(initValue);
         const handler = useCallback((e) => {
@@ -12,17 +13,26 @@ const LoginForm = () => {
         }, []);
         return [value, handler];
     }
-    const dispatch = useDispatch();
+    
+    //state
     const [id, onChangeId] = useInput('');
     const [password, onChangePassword] = useInput('');
+    
+    //dispatch
+    const dispatch = useDispatch();
 
-
+    //user selector
+    const { isLoggedIn } = useSelector(state => state.user);
+    
+    //로그인 버튼
     const onSubmitForm = useCallback((e) => {
         e.preventDefault();
-        //로그인 버튼 누르는 순간 로그인 액션 실행, dummyuser 실행
-        dispatch(loginAction);
-        console.log({
-            id,password,
+        //로그인 버튼 누르는 순간 로그인 액션 실행
+        dispatch({
+            type: LOG_IN_REQUEST,
+            data: {
+                id, password,
+            },
         });
     },[id, password]);
 
@@ -39,7 +49,7 @@ const LoginForm = () => {
                 <Input name="user-password" value={password} onChange={onChangePassword} type="password"/>
             </div>
             <div style={{marginTop: '10px'}}>
-                <Button type="primary" onClick={onSubmitForm} htmlType="submit" loading={false}>로그인</Button>
+                <Button type="primary" onClick={onSubmitForm} htmlType="submit" loading={isLoggedIn}>로그인</Button>
                 <Link href="/signup"><a><Button>회원가입</Button></a></Link>
             </div>
         </Form>

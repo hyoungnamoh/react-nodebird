@@ -73,33 +73,33 @@ export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 
 
 export const addPost = {
-    type: ADD_POST,
+    type: ADD_POST_REQUEST,
 };
 
-export const addDummy = {
-    type: ADD_DUMMY,
-    data: {
-        content: 'Hello',
-        UserId: 1,
-        User: {
-            nickname: '형남',
-        },
-    },
-};
+// export const addDummy = {
+//     type: ADD_DUMMY,
+//     data: {
+//         content: 'Hello',
+//         UserId: 1,
+//         User: {
+//             nickname: '형남',
+//         },
+//     },
+// };
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_POST: {
+        case ADD_POST_REQUEST: {
             return {
                 ...state,
             };
         }
-        case ADD_DUMMY:{
-            return {
-                ...state,
-                mainPosts: [action.data, ...state.mainPosts]
-            };
-        }
+        // case ADD_DUMMY:{
+        //     return {
+        //         ...state,
+        //         mainPosts: [action.data, ...state.mainPosts]
+        //     };
+        // }
         default : {
             return{
                 ...state,

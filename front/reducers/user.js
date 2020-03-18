@@ -64,21 +64,6 @@ export const REMOVE_FOLLOWER_FAILURE = 'REMOVE_FOLLOWER_FAILURE';
 //
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 
-//실제 액션 부분, 액션의 이름, 같이 넣어줄 데이터
-export const loginAction = {
-    type: LOG_IN_REQUEST,
-}
-
-export const logoutAction = {
-    type: LOG_OUT_REQUEST,
-};
-export const signUpAction = (data) => { //action에 넣을 데이터가 동적인 경우에는 함수로 action 구현
-    return{
-        type: SIGN_UP_REQUEST,
-        data: data,
-    };
-};
-
 //setState
 const reducer = (state = initialState, action) => {
     switch (action.type) {
@@ -86,8 +71,8 @@ const reducer = (state = initialState, action) => {
             return{
                 //스프레드 문법, 새로운 객체 생성, 불변성
                 ...state,
-                loginData: action.data,
-                isLoading: true,
+                isLoggingIn: true,
+                logInErrorReason: '',
             }
         }
         case LOG_IN_SUCCESS : {
@@ -95,6 +80,7 @@ const reducer = (state = initialState, action) => {
                 //스프레드 문법, 새로운 객체 생성, 불변성
                 ...state,
                 isLoggedIn: true,
+                isLoggingIn: false,
                 me: dummyUser,
                 isLoading:false,
             }
@@ -103,7 +89,9 @@ const reducer = (state = initialState, action) => {
             return{
                 ...state,
                 isLoggedIn: false,
+                isLoggingIn: false,
                 me: null,
+                logInErrorReason: action.error,
             }
         }
         case SIGN_UP_REQUEST : {
