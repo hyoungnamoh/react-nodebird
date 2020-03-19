@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-
+const passport = require('passport');
 const db = require('../models');
 
 // 내 정보 가져오기
@@ -42,9 +42,38 @@ router.get('/:id', (req, res) => { //남의 정보 가져오기 :id 는 req.para
 
 });
 
+// 로그인 기능
+router.post('/login', (req, res, next) => {//(Strategy 명
+    passport.authenticate('local', (err, user, info) => { //info = done 에 세번째 인자(로직상 에러)
+        //서버 에러가 있을 경우
+        if(err){
+            console.error(err);
+            next(err);
+        }
+        //로직상 에러가 있을 경우
+        if(info){
+            return res.status(401).send(info.reason);
+        }
+        //서버에러, 로직상 에러가 없을 경우
+        return req.login(user, (loginErr) => {
+            //로그인 에러 발생하면
+            if(loginErr){
+                return next(loginErr);
+            }
+            //비밀번호를 프론트에 보내는건 위험하므로 비밀번호는 지우고 보냄
+            const filteredUser = Object.assign( {}, user.toJSON()); //시퀄라이즈가 이상하게 만든 데이터라 json으로 한번 파싱해줘야함
+            delete filteredUser.password;
+
+            return res.json(user);
+        });
+    })(req, res, next);
+});
+
 // 로그아웃 기능
 router.post('/logout', (req, res) => {
-
+    req.logout();
+    req.session.destroy();
+    res.send('logout 성공');
 });
 
 // :id 팔로우 정보 가져오기

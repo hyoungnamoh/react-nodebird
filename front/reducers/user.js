@@ -81,7 +81,7 @@ const reducer = (state = initialState, action) => {
                 ...state,
                 isLoggedIn: true,
                 isLoggingIn: false,
-                me: dummyUser,
+                me: action.data,
                 isLoading:false,
             }
         }

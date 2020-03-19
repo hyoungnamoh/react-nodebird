@@ -9,13 +9,16 @@ import {
 } from "../reducers/user";
 import axios from 'axios';
 
+axios.defaults.baseURL = 'http://localhost:8088/api';
+
 //서버에 요청보내는 API 함수들
-function* loginAPI() {
+function* loginAPI(loginData) {
     //서버에 요청을 보내는 부분
+    return axios.post('/user/login', loginData);
 }
 
 function* signUpAPI(signUpdata) {
-    return axios.post('http://localhost:8088/api/user/', signUpdata);
+    return axios.post('/user/', signUpdata);
 }
 
 
@@ -34,11 +37,12 @@ function* signUp(action) {
     }
 }
 
-function* login() {
+function* login(action) {
     try{
-        // yield call(loginAPI);//성공 시 다음 줄 실행
+       const result = yield call(loginAPI, action.data);//성공 시 다음 줄 실행
         yield put({
-            type: LOG_IN_SUCCESS //실행
+            type: LOG_IN_SUCCESS, //실행
+            data: result.data,
         })
     } catch (e) { //실패 시
         console.error(e);
