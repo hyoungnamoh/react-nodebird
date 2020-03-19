@@ -1,0 +1,75 @@
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+
+const db = require('../models');
+
+// 내 정보 가져오기
+router.get('/', (req, res) => { //api = 다른 서비스가 내 서비스의 기능을 실행할 수 있게 열어둔 창구
+
+});
+
+// 회원가입하기
+router.post('/', async (req, res, next) => {
+    try {
+        const exUser = await db.User.findOne({
+            where: { //조회
+                userId: req.body.userId,
+            },
+        });
+        if(exUser) {
+            return res.status(403).send('이미 사용중인 아이디입니다.');
+        }
+        const hashedPassword = await bcrypt.hash(req.body.password, 12);//salt 가 커질수록 해킹 위험은 낮아지지만 암호화하는데 시간이 오래걸림 10~13 사이로 ㄱㄱ
+
+        //DB에 생성 저장
+        const newUser = await db.User.create({
+            nickname: req.body.nickname, //body 쓰려면 index.js 에 json, urlencoded 추가해야함
+            userId: req.body.userId,
+            password: hashedPassword,
+        });
+        console.log(newUser);
+        return res.status(200).json(newUser);
+    }catch (e) {
+        console.error(e);
+        //에러처리 후에 next로 넘겨야함
+        return next(e); //알아서 프론트에 에러가 났다고 알려줌
+    }
+});
+
+// :id 정보 가져오기
+router.get('/:id', (req, res) => { //남의 정보 가져오기 :id 는 req.params.id 로 가져옴
+
+});
+
+// 로그아웃 기능
+router.post('/logout', (req, res) => {
+
+});
+
+// :id 팔로우 정보 가져오기
+router.get('/:id/follow', (req, res) => {
+
+});
+
+//:id 팔로우 하기
+router.post('/:id/follow', (req, res) => {
+
+});
+
+//:id 팔로우 취소
+router.delete('/:id/follow', (req, res) => {
+
+});
+
+//:id 팔로워 취소
+router.delete('/:id/follower', (req, res) => {
+
+});
+
+//:id 게시물 모두 가져오기
+router.get('/:id/posts', (req, res) => {
+
+});
+
+module.exports = router;

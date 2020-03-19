@@ -61,10 +61,12 @@ const Signup = () => {
         dispatch({
             type: SIGN_UP_REQUEST,
             data: {
-                password,passwordCheck, termError
+                userId: id,
+                password,
+                nickname: nick,
             }
         });
-    }, [password,passwordCheck, termError]);
+    }, [id, nick, password,passwordCheck, termError]);
 
 
     return (

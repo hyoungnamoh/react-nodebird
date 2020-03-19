@@ -14,17 +14,15 @@ function* loginAPI() {
     //서버에 요청을 보내는 부분
 }
 
-function* SignUpAPI() {
-    //서버에 요청을 보내는 부분
+function* signUpAPI(signUpdata) {
+    return axios.post('http://localhost:8088/api/user/', signUpdata);
 }
 
 
 //실제 실행 함수들
-function* signUp() {
+function* signUp(action) {
     try{
-        yield delay(2000);
-        yield call(SignUpAPI);//성공 시 다음 줄 실행
-        throw new Error();
+        yield call(signUpAPI, action.data);// (함수, 인자)
         yield put({
             type: SIGN_UP_SUCCESS //실행
         })
@@ -39,7 +37,6 @@ function* signUp() {
 function* login() {
     try{
         // yield call(loginAPI);//성공 시 다음 줄 실행
-        yield delay(3000);
         yield put({
             type: LOG_IN_SUCCESS //실행
         })
