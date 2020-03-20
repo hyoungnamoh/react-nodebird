@@ -1,14 +1,5 @@
 export const initialState = {
-    mainPosts: [{
-        id:1,
-        User: {
-            id:1,
-            nickName: "오형남",
-        },
-        content: "첫번째 게시물",
-        img: "",
-        Comments: [],
-    }], //화면에 보일 포스트들
+    mainPosts: [], //화면에 보일 포스트들
     imagePaths:[], //미리보기 이미지 경로
     addPostErrorReason: false, //포스트 업로드 실패 사유
     isAddingPost: false, //포스트 업로드 중
@@ -16,16 +7,6 @@ export const initialState = {
     isAddingComment: false,
     addCommentErrorReason: '',
     commentAdded: false,
-};
-//추가할 더미 포스트들
-const dummyPost = {
-    id:2,
-    User: {
-        id:1,
-        nickName: '형남',
-    },
-    content: '나는 더미입니다.',
-    Comments:[],
 };
 
 //추가할 더미 댓글

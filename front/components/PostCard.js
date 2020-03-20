@@ -3,10 +3,10 @@ import React, {useCallback, useState, useEffect} from "react";
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch} from "react-redux";
 import {ADD_COMMENT_REQUEST} from "../reducers/post";
+import Link from "next/link";
 
 const PostCard = ({post}) => {
     console.log(post.User);
-    console.log(post.User.nickname);
     //redux
     const {me} = useSelector(state => state.user);
     const {isCommentAdded, isAddingComment} = useSelector(state => state.post);
@@ -61,9 +61,20 @@ const PostCard = ({post}) => {
                 extra={<Button>팔로우</Button>}
             >
                 <Card.Meta
-                    avatar={<Avatar >{post.User.nickname[0]}</Avatar>}
+                    avatar={post.User.nickname && <Avatar>{post.User.nickname[0]}</Avatar>}
                     title={post.User.nickname}
-                    description={post.content}
+                    description={(
+                        <div>
+                            {post.content.split(/(#[^\s]+)/g).map((v) => {
+                                if(v.match(/#[^\s]+/)){
+                                    return (
+                                        <Link href="/hashtag" key={v}><a>{v}</a></Link>
+                                    );
+                                }
+                                return v;
+                            })}
+                        </div>
+                    )}
                 />
             </Card>
             {commentFormOpened &&
@@ -81,8 +92,8 @@ const PostCard = ({post}) => {
                         renderItem={item => (
                             <li>
                                 <Comment
-                                    author = {item.User.nickName}
-                                    avatar={<Avatar>{item.User.nickName[0]}</Avatar>}
+                                    author = {item.User.nickname}
+                                    avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
                                     content={item.content}
                                 />
                             </li>
