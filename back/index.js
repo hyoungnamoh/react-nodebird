@@ -23,7 +23,7 @@ app.use(morgan('dev')); //로깅 남겨 줌
 
 //cors 에러 middleware
 app.use(cors({//cors 오류 잡아줌 도메인이 다른데 요청을 할 경우 서버에서 거절함. 이걸 해결 해 줌
-    origin: true,
+    origin: true, //요청 주소와 같게
     credentials: true,
 }));
 
@@ -41,7 +41,8 @@ app.use(expressSessin({ //session 사용하게 해 줌
     cookie: {
         httpOnly: true, //쿠키를 자바스크립트에서 접근 못하게 함
         secure: false, //https 사용 시 true로 해야함
-    }
+    },
+    name: 'hyoungnam'
 }));
 app.use(passport.initialize()); //서버 쪽 세션 두기, 프론트쪽에 쿠키 보내기, 매번 누가 로그인 했는지 확인하는작업을 얘가 다 해 줌
 app.use(passport.session()); //얘는 express session 아래에 넣어줘야함, 의존관계

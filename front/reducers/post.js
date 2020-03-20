@@ -114,12 +114,32 @@ const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 isAddingPost: true,
-                mainPosts: [dummyPost, ...state.mainPosts],
+                mainPosts: [action.data, ...state.mainPosts],
                 postAdded: true,
                 isLogging: false,
             };
         }
         case ADD_POST_FAILURE: {
+            return {
+                ...state,
+                isAddingPost: true,
+                addPostErrorReason: action.error,
+                isLogging: false,
+            };
+        }
+        case LOAD_MAIN_POSTS_REQUEST: {
+            return {
+                ...state,
+                mainPosts: [],
+            };
+        }
+        case LOAD_MAIN_POSTS_SUCCESS: {
+            return {
+                ...state,
+                mainPosts: action.data,
+            };
+        }
+        case LOAD_MAIN_POSTS_FAILURE: {
             return {
                 ...state,
                 isAddingPost: true,

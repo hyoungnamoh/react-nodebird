@@ -5,6 +5,8 @@ import { useSelector, useDispatch} from "react-redux";
 import {ADD_COMMENT_REQUEST} from "../reducers/post";
 
 const PostCard = ({post}) => {
+    console.log(post.User);
+    console.log(post.User.nickname);
     //redux
     const {me} = useSelector(state => state.user);
     const {isCommentAdded, isAddingComment} = useSelector(state => state.post);
@@ -59,8 +61,8 @@ const PostCard = ({post}) => {
                 extra={<Button>팔로우</Button>}
             >
                 <Card.Meta
-                    avatar={<Avatar >{post.User.nickName[0]}</Avatar>}
-                    title={post.User.nickName}
+                    avatar={<Avatar >{post.User.nickname[0]}</Avatar>}
+                    title={post.User.nickname}
                     description={post.content}
                 />
             </Card>

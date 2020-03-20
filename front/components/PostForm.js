@@ -23,10 +23,13 @@ const PostForm = () => {
     //게시글 올리기 버튼
     const onSubmitForm = useCallback((e) => {
         e.preventDefault();
+        if(!text || !text.trim()){
+            return alert('게시글을 작성하세요.');
+        }
         dispatch({
             type: ADD_POST_REQUEST,
             data:{
-                text,
+                content: text,
             }
         })
     }, [text]);

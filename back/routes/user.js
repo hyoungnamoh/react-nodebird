@@ -6,7 +6,14 @@ const db = require('../models');
 
 // 내 정보 가져오기
 router.get('/', (req, res) => { //api = 다른 서비스가 내 서비스의 기능을 실행할 수 있게 열어둔 창구
-
+    if(!req.user){
+        return res.status(401).send('로그인이 필요합니다.');
+    }
+    const user = Object.assign({}, req.user.toJSON()); //db에서 가져오 데이터를 다시 가공하는 경우 toJSON() 해줘야함
+    delete user.password;
+    console.log("useruseruseruseruseruseruseruser");
+    console.log(user);
+    return res.json(req.user);
 });
 
 // 회원가입하기
@@ -28,7 +35,6 @@ router.post('/', async (req, res, next) => {
             userId: req.body.userId,
             password: hashedPassword,
         });
-        console.log(newUser);
         return res.status(200).json(newUser);
     }catch (e) {
         console.error(e);
@@ -54,17 +60,33 @@ router.post('/login', (req, res, next) => {//(Strategy 명
         if(info){
             return res.status(401).send(info.reason);
         }
-        //서버에러, 로직상 에러가 없을 경우
-        return req.login(user, (loginErr) => {
-            //로그인 에러 발생하면
-            if(loginErr){
-                return next(loginErr);
+        //에러가 없을 경우
+        return req.login(user, async (loginErr) => {
+            try {//login 중 에러
+                if (loginErr) {
+                    return next(loginErr);
+                }
+                const fullUser = await db.User.findOne({
+                    where: { id: user.id },
+                    include: [{
+                        model: db.Post,
+                        as: 'Posts',
+                        attributes: ['id'], //id만 보냄, 비밀번호 등 다른정보는 보내지 않음
+                    }, {
+                        model: db.User,
+                        as: 'Followings',
+                        attributes: ['id'],
+                    }, {
+                        model: db.User,
+                        as: 'Followers',
+                        attributes: ['id'],
+                    }],
+                    attributes: ['id', 'nickname', 'userId'], //비밀번호 제외하고 보냄
+                });
+                return res.json(fullUser);
+            } catch (e) {
+                next(e);
             }
-            //비밀번호를 프론트에 보내는건 위험하므로 비밀번호는 지우고 보냄
-            const filteredUser = Object.assign( {}, user.toJSON()); //시퀄라이즈가 이상하게 만든 데이터라 json으로 한번 파싱해줘야함
-            delete filteredUser.password;
-
-            return res.json(user);
         });
     })(req, res, next);
 });

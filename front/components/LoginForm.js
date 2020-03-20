@@ -22,7 +22,7 @@ const LoginForm = () => {
     const dispatch = useDispatch();
 
     //user selector
-    const { isLoggedIn, isLoggingIn } = useSelector(state => state.user);
+    const { isLoggingIn } = useSelector(state => state.user);
     //로그인 버튼
     const onSubmitForm = useCallback((e) => {
         e.preventDefault();
