@@ -6,7 +6,15 @@ import {
     ADD_COMMENT_SUCCESS,
     ADD_COMMENT_REQUEST,
     ADD_COMMENT_FAILURE,
-    LOAD_MAIN_POSTS_REQUEST, LOAD_MAIN_POSTS_SUCCESS, LOAD_MAIN_POSTS_FAILURE
+    LOAD_MAIN_POSTS_REQUEST,
+    LOAD_MAIN_POSTS_SUCCESS,
+    LOAD_MAIN_POSTS_FAILURE,
+    LOAD_HASHTAG_POSTS_REQUEST,
+    LOAD_HASHTAG_POSTS_SUCCESS,
+    LOAD_HASHTAG_POSTS_FAILURE,
+    LOAD_USER_POSTS_REQUEST,
+    LOAD_USER_POSTS_SUCCESS,
+    LOAD_USER_POSTS_FAILURE
 } from "../reducers/post";
 import axios from 'axios'; //한번 불러온 모듈은 캐싱돼서 다른데에서 baseurl 사용하면 공유됨
 
@@ -40,6 +48,58 @@ function* loadMainPosts(action) {
 }
 function* watchLoadPosts() {
     yield takeLatest(LOAD_MAIN_POSTS_REQUEST, loadMainPosts);
+}
+
+//유저 포스트 가져오기
+function loadUserPostsAPI(id) {
+    return axios.get(`/user/${id}`, {
+        withCredentials: true,
+    });
+}
+
+function* loadUserPosts(action) {
+    try {
+        const result = yield call(loadUserPostsAPI, action.data);
+        yield put({
+            type:LOAD_USER_POSTS_SUCCESS,
+            data: result.data,
+        });
+    }catch (e) {
+        console.log(e);
+        yield put({
+            type: LOAD_USER_POSTS_FAILURE,
+            error: e,
+        });
+    }
+}
+function* watchLoadUserPosts() {
+    yield takeLatest(LOAD_USER_POSTS_REQUEST, loadUserPosts);
+}
+
+//해시태그 포스트 가져오기
+function loadHashtagPostsAPI(tag) {
+    return axios.get(`/hashtag/${tag}`, {
+        withCredentials: true,
+    });
+}
+
+function* loadHashtagPosts(action) {
+    try {
+        const result = yield call(loadHashtagPostsAPI, action.data);
+        yield put({
+            type:LOAD_HASHTAG_POSTS_SUCCESS,
+            data: result.data,
+        });
+    }catch (e) {
+        console.log(e);
+        yield put({
+            type: LOAD_HASHTAG_POSTS_FAILURE,
+            error: e,
+        });
+    }
+}
+function* watchLoadHashtagPosts() {
+    yield takeLatest(LOAD_HASHTAG_POSTS_REQUEST, loadHashtagPosts);
 }
 
 //포스팅하는 함수
@@ -97,5 +157,8 @@ export default function* postSaga() {
         fork(watchAddPost),
         fork(watchLoadPosts),
         fork(watchAddComment),
+        fork(watchLoadHashtagPosts),
+        fork(watchLoadUserPosts),
+
     ]);
 }

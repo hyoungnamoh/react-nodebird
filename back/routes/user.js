@@ -43,9 +43,35 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-// :id 정보 가져오기
-router.get('/:id', (req, res) => { //남의 정보 가져오기 :id 는 req.params.id 로 가져옴
-
+// :id 다른사람 정보 가져오기
+router.get('/:id', async (req, res, next) => { //남의 정보 가져오기 :id 는 req.params.id 로 가져옴
+    try{
+        const user = await db.User.findOne({
+            where : { id: parseInt(req.params.id, 10)},
+            include: [{
+                model: db.Post,
+                as: 'Posts',
+                attributes: ['id'],
+            }, {
+                model: db.User,
+                as: 'Followings',
+                attributes: ['id'],
+            }, {
+                model: db.User,
+                as: 'Followers',
+                attributes: ['id'],
+            }],
+            attributes: ['id', 'nickname'],
+        });
+        const jsonUser = user.toJSON();
+        jsonUser.Posts = jsonUser.Posts ? jsonUser.Posts.length : 0;
+        jsonUser.Followings = jsonUser.Followings ? jsonUser.Followings.length : 0;
+        jsonUser.Followers = jsonUser.Followers ? jsonUser.Followers.length : 0;
+        req.json(user);
+    } catch (e) {
+        console.error(e);
+        next(e);
+    }
 });
 
 // 로그인 기능
@@ -66,6 +92,7 @@ router.post('/login', (req, res, next) => {//(Strategy 명
                 if (loginErr) {
                     return next(loginErr);
                 }
+                console.log(user.id);
                 const fullUser = await db.User.findOne({
                     where: { id: user.id },
                     include: [{
@@ -97,6 +124,26 @@ router.post('/logout', (req, res) => {
     req.session.destroy();
     res.send('logout 성공');
 });
+
+//다른 유저 포스트 가져오기
+router.get('/:id/posts', async (req, res, next) => {
+    try{
+        const posts = await db.Post.findAll({
+            where: {
+                UserId: parseInt(req.params.id, 10),
+                RetweetId: null,
+            },
+            include: [{
+                model: db.User,
+                attributes: ['id', 'nickname'],
+            }],
+        });
+        res.json(posts);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
+})
 
 // :id 팔로우 정보 가져오기
 router.get('/:id/follow', (req, res) => {

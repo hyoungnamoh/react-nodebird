@@ -8,6 +8,8 @@ const Signup = () => {
     //redux
     const dispatch = useDispatch();
     const {isSigningUp, me} = useSelector(state => state.user);
+    const munde = useSelector(state => state);
+    console.log(munde);
 
     //custom hook
     const useInput = useCallback((initValue = null) => {

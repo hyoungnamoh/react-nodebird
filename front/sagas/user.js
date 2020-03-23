@@ -49,11 +49,11 @@ function* watchLogOut() {
 }
 
 /*
-    유저 정보가져오기
+    유저 정보가져오기, 다른유저 정보가져오기
  */
-function loadUserAPI() {
+function loadUserAPI(userId) {
     //서버에 요청을 보내는 부분
-    return axios.get('/user/', {
+    return axios.get(userId ? `/user/${userId}` : '/user', {
         withCredentials: true, //다른 도메인과 쿠키 주고받을 수 있게 함, 추가로 서버쪽에 cors 설정 해줘야 함
     });
 }
@@ -65,6 +65,7 @@ function* loadUser(action) {
         yield put({
             type: LOAD_USER_SUCCESS, //실행
             data: result.data,
+            me: !action.data, //userId가 없으면 나, reducer 에서 조건문
         })
     } catch (e) { //실패 시
         console.error(e);

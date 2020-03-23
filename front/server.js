@@ -30,6 +30,16 @@ app.prepare().then(() => {
        },
     }));
 
+   //next로는 동적인 주소를 받는걸 할수가 없기때문에 express를 사용해 express 주소와 next 주소 연결
+    //주소는 hashtag/:tag 지만 실제로 보여줄 페이지는 /hashtag
+    server.get('/hashtag/:tag', (req, res) => {
+        return app.render(req, res, '/hashtag', {tag: req.params.tag}); //태그를 전달, 이걸 전달해줘야 프론트에서 동적인 아이디를 캐치할 수 있음, 이렇게하면 tag가 hashtag page로 같이 딸려감
+    });
+
+    server.get('/user/:id', (req, res) => {
+        return app.render(req, res, '/user', {id: req.params.id});
+    });
+
    server.get('*', (req, res) => { //* 모든 get 요청 처리
        return handle(req, res);
    });

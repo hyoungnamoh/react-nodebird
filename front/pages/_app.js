@@ -14,7 +14,7 @@ import rootSaga from '../sagas';
 //_app.js -> layout
 //store = redux state, action, reducer 가 합쳐진 것
 //store 를 자식 컴포넌트들한테 store 를 물려줌으로 써 모든 컴포넌트들이 state에 접근할 수 있게됨
-const NodeBird = ({Component, store}) => {
+const NodeBird = ({Component, store, pageProps }) => { //pageProps 받은걸
     return (
         <Provider store={store}>
             <Head>
@@ -22,7 +22,7 @@ const NodeBird = ({Component, store}) => {
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/3.16.2/antd.css" />
             </Head>
             <AppLayout>
-                <Component/>
+                <Component{...pageProps}/> {/*페이지들, 여기로 pageProps 넘겨줌*/}
             </AppLayout>
         </Provider>
     );
@@ -33,6 +33,22 @@ NodeBird.PropTypes ={
     store: PropTypes.object,
     //필요에 따라 여기서 store 커스터마이징
 }
+/*
+Hashtag.getInitialProps = async (constex) => {
+여기서 Hashtag 가 context에 Component가 됨
+그리고 그 안에 있는 getInitialProps를 실행하면 Hashtag에  getInitialProps가 실행 됨
+ */
+//동적 주소 데이터 받기
+NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내려줌
+    const { ctx } = context;
+    console.log(context);
+    let pageProps = {};
+    if(context.Component.getInitialProps){
+        pageProps = await context.Component.getInitialProps(ctx);
+    }
+    return {pageProps}; //Component 에 props로 넘겨줌 그 넘겨준걸
+}
+
 const configureStore = (initialState, options) => {
     //사가 미들웨어 생성
     const sagaMiddleware = createSagaMiddleware();
