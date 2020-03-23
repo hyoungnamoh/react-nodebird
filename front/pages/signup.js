@@ -9,7 +9,6 @@ const Signup = () => {
     const dispatch = useDispatch();
     const {isSigningUp, me} = useSelector(state => state.user);
     const munde = useSelector(state => state);
-    console.log(munde);
 
     //custom hook
     const useInput = useCallback((initValue = null) => {
@@ -47,7 +46,6 @@ const Signup = () => {
     const onChangeTerm = useCallback((e) => {
         setTermError(false);
         setTerm(e.target.checked);
-        console.log(e.target.checked);
     }, [term, termError]);
 
 

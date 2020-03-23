@@ -132,6 +132,7 @@ const reducer = (state = initialState, action) => {
             }
         }
         case LOAD_USER_SUCCESS : {
+            console.log('LOAD_USER_SUCCESS', action.me);
             if(action.me){
                 return{
                     ...state,

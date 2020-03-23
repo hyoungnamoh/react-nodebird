@@ -11,7 +11,6 @@ router.get('/', async (req, res, next) => {
             }],
             order: [['createdAt', 'DESC']] //내림차순
         });
-        console.log(posts);
         res.json(posts); //변형이 필요없으면 toJSON 하지 않아도 됨
     }catch (e) {
         console.error(e);

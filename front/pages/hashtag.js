@@ -4,7 +4,6 @@ import {LOAD_HASHTAG_POSTS_REQUEST} from "../reducers/post";
 import PostCard from "../components/PostCard";
 
 const Hashtag = ({tag}) => {
-    console.log(tag);
     const dispatch = useDispatch();
     const {mainPosts} = useSelector(state => state.post);
     useEffect(() => {
@@ -30,8 +29,10 @@ const Hashtag = ({tag}) => {
 // }
 
 //server에서 보내준 tag, Next js 에서 제공하는 getInitialProps란 메서드를 사용해 값을 가져올 수 있음
-Hashtag.getInitialProps = async (context) => { //여기서 context 가 _app.js 에서 보내준 {ctx}
-    console.log('hashtag', context);
+Hashtag.getInitialProps = async (context) => {
+    return {
+        tag: context.query.tag,
+    }//여기서 context 가 _app.js 에서 보내준 {ctx}
 }
 /*
     getInitialProps

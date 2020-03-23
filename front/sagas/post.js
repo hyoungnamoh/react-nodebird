@@ -52,7 +52,7 @@ function* watchLoadPosts() {
 
 //유저 포스트 가져오기
 function loadUserPostsAPI(id) {
-    return axios.get(`/user/${id}`, {
+    return axios.get(`/user/${id}/posts`, {
         withCredentials: true,
     });
 }
@@ -85,6 +85,7 @@ function loadHashtagPostsAPI(tag) {
 
 function* loadHashtagPosts(action) {
     try {
+        console.log('action', action);
         const result = yield call(loadHashtagPostsAPI, action.data);
         yield put({
             type:LOAD_HASHTAG_POSTS_SUCCESS,
@@ -109,8 +110,6 @@ function addPostAPI(postData) {
     });
 }
 function* addPost(action) {
-    console.log("actionactionactionactionactionactionactionactionaction");
-    console.log(action);
     try {
         const result = yield call(addPostAPI, action.data);
         yield put({

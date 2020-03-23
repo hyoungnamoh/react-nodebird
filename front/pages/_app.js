@@ -41,7 +41,6 @@ Hashtag.getInitialProps = async (constex) => {
 //동적 주소 데이터 받기
 NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내려줌
     const { ctx } = context;
-    console.log(context);
     let pageProps = {};
     if(context.Component.getInitialProps){
         pageProps = await context.Component.getInitialProps(ctx);

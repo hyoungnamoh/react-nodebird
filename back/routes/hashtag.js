@@ -10,7 +10,7 @@ router.get('/:tag', async (req, res, next) => {
             include: [{
                 model: db.Hashtag,
                 //주소를 통해 서버로 갈때 한글, 특문에 경우 uri component로 바뀌어버림 이걸 서버에서 다시 디코딩
-                where: { name: decodeURIComponent(req.params.name)},
+                where: { name: decodeURIComponent(req.params.tag)},
             }, {
                 model: db.User,
             }],

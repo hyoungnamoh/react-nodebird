@@ -52,26 +52,28 @@ function* watchLogOut() {
     유저 정보가져오기, 다른유저 정보가져오기
  */
 function loadUserAPI(userId) {
-    //서버에 요청을 보내는 부분
-    return axios.get(userId ? `/user/${userId}` : '/user', {
-        withCredentials: true, //다른 도메인과 쿠키 주고받을 수 있게 함, 추가로 서버쪽에 cors 설정 해줘야 함
+    // 서버에 요청을 보내는 부분
+    return axios.get(userId ? `/user/${userId}` : '/user/', {
+        withCredentials: true,
     });
 }
 function* loadUser(action) {
-    try{
-        const result = yield call(loadUserAPI, action.data);//성공 시 다음 줄 실행
-        console.log("loadUserloadUserloadUserloadUserloadUserloadUserloadUserloadUserloadUserloadUserloadUserloadUser");
-        console.log(result);
-        yield put({
-            type: LOAD_USER_SUCCESS, //실행
+    try {
+        // yield call(loadUserAPI);
+        const result = yield call(loadUserAPI, action.data);
+        console.log("ddddddddddddddddddddddddddddd");
+        console.log('result', result);
+        yield put({ // put은 dispatch 동일
+            type: LOAD_USER_SUCCESS,
             data: result.data,
-            me: !action.data, //userId가 없으면 나, reducer 에서 조건문
-        })
-    } catch (e) { //실패 시
+            me: !action.data,
+        });
+    } catch (e) { // loginAPI 실패
         console.error(e);
         yield put({
-            type: LOAD_USER_FAILURE
-        })
+            type: LOAD_USER_FAILURE,
+            error: e,
+        });
     }
 }
 function* watchLoadUser() {

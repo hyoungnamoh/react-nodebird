@@ -6,7 +6,6 @@ import {ADD_COMMENT_REQUEST} from "../reducers/post";
 import Link from "next/link";
 
 const PostCard = ({post}) => {
-    console.log(post.User);
     //redux
     const {me} = useSelector(state => state.user);
     const {isCommentAdded, isAddingComment} = useSelector(state => state.post);
@@ -53,7 +52,7 @@ const PostCard = ({post}) => {
                 key={+post.createdAt}
                 cover={post.img && <img alt="example" src={post.img}/>}
                 actions={[
-                    <Icon type="retweet" key= "retweet"/>,
+                    <Icon type="retweet" key= "retweets"/>,
                     <Icon type="heart" key= "heart"/>,
                     <Icon type="message" key= "message" onClick={onToggleComment}/>,
                     <Icon type="ellipsis" key= "ellipsis"/>,
@@ -61,14 +60,14 @@ const PostCard = ({post}) => {
                 extra={<Button>팔로우</Button>}
             >
                 <Card.Meta
-                    avatar={post.User.nickname && <Avatar>{post.User.nickname[0]}</Avatar>}
+                    avatar={<Link href={{ pathname: '/user', query: { id: post.User.id}}} as={`/user/${post.User.id}`} ><a><Avatar>{post.User.nickname[0]}</Avatar></a></Link>}
                     title={post.User.nickname}
                     description={(
                         <div>
                             {post.content.split(/(#[^\s]+)/g).map((v) => {
                                 if(v.match(/#[^\s]+/)){
                                     return (
-                                        <Link href="/hashtag" key={v}><a>{v}</a></Link>
+                                        <Link href={{ pathname: '/hashtag', query: {tag: v.slice(1)}}} as={`/hashtag/${v.slice(1)}`} key={v}><a>{v}</a></Link>
                                     );
                                 }
                                 return v;
@@ -93,7 +92,7 @@ const PostCard = ({post}) => {
                             <li>
                                 <Comment
                                     author = {item.User.nickname}
-                                    avatar={<Avatar>{item.User.nickname[0]}</Avatar>}
+                                    avatar={<Link href={{ pathname: '/user', query: {id: post.User.id}}} as={`/user/${item.User.id}`}><a><Avatar>{post.User.nickname[0]}</Avatar></a></Link>}
                                     content={item.content}
                                 />
                             </li>
