@@ -2,7 +2,7 @@ import {Button, Form, Input, Card, Icon, Avatar, List, Comment} from "antd";
 import React, {useCallback, useState, useEffect} from "react";
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch} from "react-redux";
-import {ADD_COMMENT_REQUEST} from "../reducers/post";
+import {ADD_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST} from "../reducers/post";
 import Link from "next/link";
 
 const PostCard = ({post}) => {
@@ -25,9 +25,10 @@ const PostCard = ({post}) => {
             type: ADD_COMMENT_REQUEST,
             data:{
                 postId: post.id,
+                content: commentText,
             },
         });
-    }, [me && me.id]);
+    }, [me && me.id, commentText]);
 
     //댓글 onChange
     const onChangeCommentText = useCallback((e) => {
@@ -37,6 +38,12 @@ const PostCard = ({post}) => {
     //댓글창 열고 닫기
     const onToggleComment = useCallback(() => {
         setCommentFormOpened(prev => !prev);
+        if(!commentFormOpened){
+            dispatch({
+                type: LOAD_COMMENTS_REQUEST,
+                data: post.id,
+            });
+        }
     }, [commentFormOpened ]);
 
     //댓글 작성 후 작성 성공하면 댓글 폼 초기화
