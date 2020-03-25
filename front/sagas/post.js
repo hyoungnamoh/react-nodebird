@@ -19,9 +19,15 @@ import {
     LOAD_COMMENTS_SUCCESS,
     LOAD_COMMENTS_FAILURE,
     UPLOAD_IMAGES_SUCCESS,
-    UPLOAD_IMAGES_FAILURE, UPLOAD_IMAGES_REQUEST
+    UPLOAD_IMAGES_FAILURE,
+    UPLOAD_IMAGES_REQUEST,
+    LIKE_POST_SUCCESS,
+    LIKE_POST_FAILURE,
+    LIKE_POST_REQUEST,
+    UNLIKE_POST_SUCCESS, UNLIKE_POST_FAILURE, UNLIKE_POST_REQUEST
 } from "../reducers/post";
-import axios from 'axios'; //한번 불러온 모듈은 캐싱돼서 다른데에서 baseurl 사용하면 공유됨
+import axios from 'axios';
+import {ADD_POST_TO_ME} from "../reducers/user"; //한번 불러온 모듈은 캐싱돼서 다른데에서 baseurl 사용하면 공유됨
 
 //모든 게시물 가져오기
 function loadMainPostsAPI() {
@@ -114,6 +120,11 @@ function* addPost(action) {
             type:ADD_POST_SUCCESS,
             data: result.data,
         });
+        yield put({
+            type: ADD_POST_TO_ME,
+            data: result.data.id
+        });
+
     }catch (e) {
         console.log(e);
         yield put({
@@ -208,6 +219,64 @@ function* watchUploadImages() {
     yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
 }
 
+//좋아요 누르는 함수
+function likePostAPI(postId) {
+    return axios.post(`/post/${postId}/like`, {}, {
+        withCredentials: true,
+    });
+}
+
+function* likePost(action) {
+    try {
+        const result = yield call(likePostAPI, action.data);
+        yield put({
+            type: LIKE_POST_SUCCESS,
+            data: {
+                postId: action.data,
+                userId: result.data.userId,
+            }
+        });
+    }catch (e) {
+        yield put({
+            type: LIKE_POST_FAILURE,
+            error: e,
+        });
+    }
+}
+function* watchLikePost() {
+    yield takeLatest(LIKE_POST_REQUEST, likePost);
+}
+
+//좋아요 취소하는 함수
+function unLikePostAPI(postId) {
+    return axios.delete(`/post/${postId}/like`, {
+        withCredentials: true,
+    });
+}
+
+function* unLikePost(action) {
+    try {
+        const result = yield call(unLikePostAPI, action.data);
+        yield put({
+            type: UNLIKE_POST_SUCCESS,
+            data: {
+                postId: action.data,
+                userId: result.data.userId,
+            }
+        });
+    }catch (e) {
+        yield put({
+            type: UNLIKE_POST_FAILURE,
+            error: e,
+        });
+    }
+}
+function* watchUnLikePost() {
+    yield takeLatest(UNLIKE_POST_REQUEST, unLikePost);
+}
+
+
+
 
 //시작점
 export default function* postSaga() {
@@ -219,6 +288,7 @@ export default function* postSaga() {
         fork(watchLoadComments),
         fork(watchAddComment),
         fork(watchUploadImages),
-
+        fork(watchLikePost),
+        fork(watchUnLikePost),
     ]);
 }

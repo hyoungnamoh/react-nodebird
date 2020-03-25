@@ -2,9 +2,10 @@ import {Button, Form, Input, Card, Icon, Avatar, List, Comment} from "antd";
 import React, {useCallback, useState, useEffect} from "react";
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch} from "react-redux";
-import {ADD_COMMENT_REQUEST, LOAD_COMMENTS_REQUEST} from "../reducers/post";
+import {ADD_COMMENT_REQUEST, LIKE_POST_REQUEST, LOAD_COMMENTS_REQUEST, UNLIKE_POST_REQUEST} from "../reducers/post";
 import Link from "next/link";
 import PostImages from "./PostImages";
+import {FOLLOW_USER_REQUEST, UNFOLLOW_USER_REQUEST} from "../reducers/user";
 
 const PostCard = ({post}) => {
     //redux
@@ -52,7 +53,41 @@ const PostCard = ({post}) => {
         setCommentText('');
     },[isCommentAdded === true]);
 
+    const liked = me && post.Likers && post.Likers.find(v => v.id === me.id);
 
+    const onToggleLike = useCallback(() => {
+        if(!me) {
+            return alert('로그인이 필요합니다.');
+        }
+        //Likers = 좋아요 누른사람들의 id가 들어있는 배열
+        if(liked){ //좋아요를 누른 상태
+            dispatch({
+                type: UNLIKE_POST_REQUEST,
+                data: post.id,
+            })
+        } else{ //좋아요를 누르지 않은 상태
+            dispatch({
+                type: LIKE_POST_REQUEST,
+                data: post.id,
+            });
+        }
+    }, [me && me.id, post && post.id, liked]);
+
+    //팔로우 버튼 클릭
+    const onFollow = useCallback(userId => () => {
+        dispatch({
+            type: FOLLOW_USER_REQUEST,
+            data: userId,
+        });
+    }, []);
+
+    //팔로우 취소 버튼 클릭
+    const onUnfollow = useCallback(userId => () => {
+        dispatch({
+            type: UNFOLLOW_USER_REQUEST,
+            data: userId,
+        });
+    }, []);
 
     return (
         <div>
@@ -61,11 +96,16 @@ const PostCard = ({post}) => {
                 cover={post.Images[0] && <PostImages images={post.Images}/>}
                 actions={[
                     <Icon type="retweet" key= "retweets"/>,
-                    <Icon type="heart" key= "heart"/>,
+                    <Icon type="heart" key= "heart" theme={liked ? 'twoTone' : 'outlined'} twoToneColor={'#eb2f96'} onClick={onToggleLike}/>,
                     <Icon type="message" key= "message" onClick={onToggleComment}/>,
                     <Icon type="ellipsis" key= "ellipsis"/>,
                 ]}
-                extra={<Button>팔로우</Button>}
+                extra={ !me || post.User.id === me.id
+                    ? null //로그인을 안했거나 내 게시글을 보고있을 경우
+                    : me.Followings && me.Followings.find(v => v.id === post.User.id)
+                        ? <Button onClick={onUnfollow(post.User.id)}>팔로우 취소</Button> //내 팔로잉 목록에 있을경우
+                        : <Button onClick={onFollow(post.User.id)}>팔로우</Button> //팔로잉 하지않았을 경우
+                }
             >
                 <Card.Meta
                     avatar={<Link href={{ pathname: '/user', query: { id: post.User.id}}} as={`/user/${post.User.id}`} ><a><Avatar>{post.User.nickname[0]}</Avatar></a></Link>}

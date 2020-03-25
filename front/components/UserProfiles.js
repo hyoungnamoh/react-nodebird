@@ -11,7 +11,6 @@ const UserProfiles = () => {
             type:LOG_OUT_REQUEST,
         });
     }, []);
-    console.log('me', me);
     return (
         <Card
             actions={[

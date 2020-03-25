@@ -10,6 +10,7 @@ export const initialState = { //초기값
     followerList: [], //팔로워 리스트
     followingList: [], //팔로잉 리스트
     userInfo: null, //남의 정보
+    isEditingNickName: false,
 };
 
 //로그인하는 액션
@@ -32,10 +33,15 @@ export const LOAD_USER_REQUEST = 'LOAD_USER_REQUEST';
 export const LOAD_USER_SUCCESS = 'LOAD_USER_SUCCESS';
 export const LOAD_USER_FAILURE = 'LOAD_USER_FAILURE';
 
-//팔로워, 팔로윙 리스트 불러오는 액션
-export const LOAD_FOLLOW_REQUEST = 'LOAD_FOLLOW_REQUEST';
-export const LOAD_FOLLOW_SUCCESS = 'LOAD_FOLLOW_SUCCESS';
-export const LOAD_FOLLOW_FAILURE = 'LOAD_FOLLOW_FAILURE';
+//팔로워 리스트 불러오는 액션
+export const LOAD_FOLLOWERS_REQUEST = 'LOAD_FOLLOWERS_REQUEST';
+export const LOAD_FOLLOWERS_SUCCESS = 'LOAD_FOLLOWERS_SUCCESS';
+export const LOAD_FOLLOWERS_FAILURE = 'LOAD_FOLLOWERS_FAILURE';
+
+//팔로잉 리스트 불러오는 액션
+export const LOAD_FOLLOWINGS_REQUEST = 'LOAD_FOLLOWINGS_REQUEST';
+export const LOAD_FOLLOWINGS_SUCCESS = 'LOAD_FOLLOWINGS_SUCCESS';
+export const LOAD_FOLLOWINGS_FAILURE = 'LOAD_FOLLOWINGS_FAILURE';
 
 //유저 팔로우하는 액션
 export const FOLLOW_USER_REQUEST = 'FOLLOW_USER_REQUEST';
@@ -54,6 +60,13 @@ export const REMOVE_FOLLOWER_FAILURE = 'REMOVE_FOLLOWER_FAILURE';
 
 //
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
+
+//내 정보 수정
+export const EDIT_NICKNAME_REQUEST = 'EDIT_NICKNAME_REQUEST';
+export const EDIT_NICKNAME_SUCCESS = 'EDIT_NICKNAME_SUCCESS';
+export const EDIT_NICKNAME_FAILURE = 'EDIT_NICKNAME_FAILURE';
+
+
 
 //setState
 const reducer = (state = initialState, action) => {
@@ -132,7 +145,7 @@ const reducer = (state = initialState, action) => {
             }
         }
         case LOAD_USER_SUCCESS : {
-            console.log('LOAD_USER_SUCCESS', action.me);
+            console.log('action.data', action.data);
             if(action.me){
                 return{
                     ...state,
@@ -147,8 +160,132 @@ const reducer = (state = initialState, action) => {
         case LOAD_USER_FAILURE : {
             return{
                 ...state,
+            }
+        }
+        case FOLLOW_USER_REQUEST : {
+            return{
+                ...state,
+            }
+        }
+        case FOLLOW_USER_SUCCESS : {
+            return{
+                ...state,
+                me: {
+                    ...state.me,
+                    Followings: [{id: action.data}, ...state.me.Followings] //팔로잉한 아이디들 배열
+                }
+            }
+        }
+        case FOLLOW_USER_FAILURE : {
+            return{
+                ...state,
                 isSigningUp: false,
                 signUpErrorReason: action.error,
+            }
+        }
+        case UNFOLLOW_USER_REQUEST : {
+            return{
+                ...state,
+            }
+        }
+        case UNFOLLOW_USER_SUCCESS : {
+            return{
+                ...state,
+                me: {
+                    ...state.me,
+                    Followings: state.me.Followings.filter(v => v.id !== action.data),
+                },
+                followingList: state.followingList.filter(v => v.id !== action.data),
+            }
+        }
+        case UNFOLLOW_USER_FAILURE : {
+            return{
+                ...state,
+                isSigningUp: false,
+                signUpErrorReason: action.error,
+            }
+        }
+        case ADD_POST_TO_ME: {
+            return {
+                ...state,
+                me: {
+                    ...state.me,
+                    Posts: [{ id: action.data }, ...state.me.Posts],
+                },
+            }
+        }
+        case LOAD_FOLLOWERS_REQUEST : {
+            return{
+                ...state,
+            }
+        }
+        case LOAD_FOLLOWERS_SUCCESS : {
+            return{
+                ...state,
+                followerList: action.data,
+            }
+        }
+        case LOAD_FOLLOWERS_FAILURE : {
+            return{
+                ...state,
+            }
+        }
+        case LOAD_FOLLOWINGS_REQUEST : {
+            return{
+                ...state,
+            }
+        }
+        case LOAD_FOLLOWINGS_SUCCESS : {
+            return{
+                ...state,
+                followingList: action.data,
+            }
+        }
+        case LOAD_FOLLOWINGS_FAILURE : {
+            return{
+                ...state,
+            }
+        }
+        case REMOVE_FOLLOWER_REQUEST : {
+            return{
+                ...state,
+            }
+        }
+        case REMOVE_FOLLOWER_SUCCESS : {
+            return{
+                ...state,
+                me: {
+                    ...state.me,
+                    Followers: state.me.Followers.filter(v => v.id !== action.data),
+                },
+                followerList: state.followerList.filter(v => v.id !== action.data),
+            }
+        }
+        case REMOVE_FOLLOWER_FAILURE : {
+            return{
+                ...state,
+            }
+        }
+        case EDIT_NICKNAME_REQUEST : {
+            return{
+                ...state,
+                isEditingNickName: true,
+            }
+        }
+        case EDIT_NICKNAME_SUCCESS : {
+            return{
+                ...state,
+                isEditingNickName: false,
+                me: {
+                    ...state.me,
+                    nickname: action.data,
+                }
+            }
+        }
+        case EDIT_NICKNAME_FAILURE : {
+            return{
+                ...state,
+                isEditingNickName: false,
             }
         }
         default : {

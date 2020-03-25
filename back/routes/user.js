@@ -134,6 +134,11 @@ router.get('/:id/posts', async (req, res, next) => {
                 attributes: ['id', 'nickname'],
             }, {
                 model: db.Image,
+            }, {
+                model: db.User, //게시글 좋아요 누른사람 include
+                through: 'Like',
+                as: 'Likers',
+                attributes: ['id'],
             }],
         });
         res.json(posts);
@@ -149,18 +154,98 @@ router.get('/:id/follow', (req, res) => {
 });
 
 //:id 팔로우 하기
-router.post('/:id/follow', (req, res) => {
-
+router.post('/:id/follow', isLoggedIn, async (req, res, next) => {
+    try{
+        const me = await db.User.findOne({
+            where: {
+                id: req.user.id,
+            }
+        });
+        await me.addFollowing(req.params.id);
+        res.send(req.params.id);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
 });
 
 //:id 팔로우 취소
-router.delete('/:id/follow', (req, res) => {
+router.delete('/:id/follow', isLoggedIn, async (req, res) => {
+    try{
+        const me = await db.User.findOne({
+            where: {
+                id: req.user.id,
+            }
+        });
+        await me.removeFollowing(req.params.id);
+        res.send(req.params.id);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
 
 });
 
-//:id 팔로워 취소
-router.delete('/:id/follower', (req, res) => {
+//:id 팔로워 목록 가져오기
+router.get('/:id/followers', isLoggedIn, async (req, res, next) => {
+    try{
+        const user = await db.User.findOne({
+            where: { id: parseInt(req.params.id, 10)},
+        });
+        const followers = await user.getFollowers({
+            attributes: ['id', 'nickname'],
+        });
+        res.json(followers);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
+});
 
+//:id 팔로잉 목록 가져오기
+router.get('/:id/followings', isLoggedIn, async (req, res, next) => {
+    try{
+        const user = await db.User.findOne({
+            where: { id: parseInt(req.params.id, 10)},
+        });
+        const followings = await user.getFollowings({
+            attributes: ['id', 'nickname'],
+        });
+        res.json(followings);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
+});
+
+
+//:id 팔로워 취소
+router.delete('/:id/follower', isLoggedIn, async (req, res, next) => {
+    try{
+        const me = await db.User.findOne({
+            where: { id: req.user.id },
+        });
+        await me.removeFollower(req.params.id); //관계 끊기
+        res.send(req.params.id);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
+});
+
+// 닉네임 수정
+router.patch('/nickname', isLoggedIn, async (req, res, next) => {
+    try{
+        await db.User.update({
+            nickname: req.body.nickname,
+        },{
+            where: { id: req.user.id },
+        });
+        res.send(req.body.nickname);
+    }catch (e) {
+        console.error(e);
+        next(e);
+    }
 });
 
 //:id 게시물 모두 가져오기
