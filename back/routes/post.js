@@ -1,9 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models');
+const { isLoggedIn } = require('./middleware');
+const multer = require('multer');
+const path = require('path');
+const upload = multer({
+    storage: multer.diskStorage({ //저장 옵션 서버쪽 디스크에 저장
+        destination(req, file, done){
+            done(null, 'uploads'); //어떤 폴더에 저장할지
+            //(서버에러, 성공했을때)
+        },
+        filename(req, file, done){ //파일이름 옵션
+            const ext = path.extname(file.originalname); //확장자 추출
+            const basename = path.basename(file.originalname, ext);
+            done(null, basename + new Date().valueOf() + ext);
+        }
+    }),
+    limits: { fileSize: 20 * 1024 * 1024 }, //파일크기 제한 옵션
+});
 
 //게시글 작성하기
-router.post('/', async (req, res, next) => {
+router.post('/', isLoggedIn, async (req, res, next) => {
     try{
         //해시태그 찾는 정규표현식, 정규표현식에 걸리는애들 hashtags에 배열로 넣음
         const hashtags = req.body.content.match(/#[^\s]+/g);
@@ -32,17 +49,15 @@ router.post('/', async (req, res, next) => {
         next(e);
     }
 });
-//게시글 이미지 가져오기
-router.post('/image', (req, res) => {
-
+//이미지 업로드하기
+router.post('/images', upload.array('image'), (req, res) => { //array(프론트에서 append 한 이름), array = 여러장, single = 한장, fields = 이미지 여러개 올릴 때 이름을 각기 다르게 받을 수 있음, none = 파일을 하나도 안올릴 경우
+    //파일이 넘어오는 위치, single 이면 req.file
+    res.json(req.files.map(v => v.filename)); //파일명 전달
 });
 
 //댓글 쓰기
-router.post('/:id/comment', async (req, res, next) => {
+router.post('/:id/comment', isLoggedIn, async (req, res, next) => {
     try{
-        if(!req.user){
-            return res.status(401).send('로그인이 필요합니다.');
-        }
         const post = await db.Post.findOne({where: { id: req.params.id }});
         //부모격인 post가 있는지 먼저 확인
         if(!post){
@@ -96,5 +111,6 @@ router.get('/:id/comments', async (req, res, next) => {
         next(e);
     }
 });
+
 
 module.exports = router;

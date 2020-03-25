@@ -144,7 +144,7 @@ const reducer = (state = initialState, action) => {
             //불변성 유지
             const postIndex = state.mainPosts.findIndex(v => v.id=== action.data.postId);
             const post = state.mainPosts[postIndex];
-            const Comments = [...post.Comments, dummyComment];
+            const Comments = [...post.Comments, action.data.comment];
             const mainPosts = [...state.mainPosts];
             mainPosts[postIndex] = {...post, Comments};
             return {
@@ -160,6 +160,39 @@ const reducer = (state = initialState, action) => {
                 isAddingComment: false,
                 addCommentErrorReason: action.error,
             };
+        }
+        case LOAD_COMMENTS_SUCCESS:{
+            const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
+            const post = state.mainPosts[postIndex];
+            const Comments = action.data.comments;
+            const mainPosts = [...state.mainPosts];
+            mainPosts[postIndex] = { ...post, Comments };
+            return {
+                ...state,
+                mainPosts,
+            };
+        }
+        case UPLOAD_IMAGES_REQUEST: {
+            return {
+                ...state,
+            };
+        }
+        case UPLOAD_IMAGES_SUCCESS: {
+            return {
+                ...state,
+                imagePaths: [...state.imagePaths, ...action.data], //이미지 미리보기 경로
+            };
+        }
+        case UPLOAD_IMAGES_FAILURE: {
+            return {
+                ...state,
+            };
+        }
+        case REMOVE_IMAGE: {
+            return{
+                ...state,
+                imagePaths: state.imagePaths.filter((v, i) => i !== action.index),
+            }
         }
         default : {
             return{

@@ -61,8 +61,6 @@ function* loadUser(action) {
     try {
         // yield call(loadUserAPI);
         const result = yield call(loadUserAPI, action.data);
-        console.log("ddddddddddddddddddddddddddddd");
-        console.log('result', result);
         yield put({ // put은 dispatch 동일
             type: LOAD_USER_SUCCESS,
             data: result.data,
@@ -116,7 +114,6 @@ function loginAPI(loginData) {
 function* login(action) {
     try{
        const result = yield call(loginAPI, action.data);//성공 시 다음 줄 실행
-        console.log(result);
         yield put({
             type: LOG_IN_SUCCESS, //실행
             data: result.data,

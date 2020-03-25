@@ -14,7 +14,12 @@ import {
     LOAD_HASHTAG_POSTS_FAILURE,
     LOAD_USER_POSTS_REQUEST,
     LOAD_USER_POSTS_SUCCESS,
-    LOAD_USER_POSTS_FAILURE, LOAD_COMMENTS_REQUEST, LOAD_COMMENTS_SUCCESS, LOAD_COMMENTS_FAILURE
+    LOAD_USER_POSTS_FAILURE,
+    LOAD_COMMENTS_REQUEST,
+    LOAD_COMMENTS_SUCCESS,
+    LOAD_COMMENTS_FAILURE,
+    UPLOAD_IMAGES_SUCCESS,
+    UPLOAD_IMAGES_FAILURE, UPLOAD_IMAGES_REQUEST
 } from "../reducers/post";
 import axios from 'axios'; //한번 불러온 모듈은 캐싱돼서 다른데에서 baseurl 사용하면 공유됨
 
@@ -79,7 +84,6 @@ function loadHashtagPostsAPI(tag) {
 
 function* loadHashtagPosts(action) {
     try {
-        console.log('action', action);
         const result = yield call(loadHashtagPostsAPI, action.data);
         yield put({
             type:LOAD_HASHTAG_POSTS_SUCCESS,
@@ -129,17 +133,20 @@ function addCommentAPI(data) {
     });
 }
 
-function* addComment(action) { //action = watch함수에서 받은 req액션안에 값, dispatch할때 같이 있던 값
+function* addComment(action) {
+    let result;
     try {
-        const result = yield call(addCommentAPI, action.data);
+        result = yield call(addCommentAPI, action.data);
+        console.log('result', result);
         yield put({
-            type:ADD_COMMENT_SUCCESS,
+            type: ADD_COMMENT_SUCCESS,
             data: {
                 postId: action.data.postId,
                 comment: result.data,
             },
         });
-    }catch (e) {
+    } catch (e) {
+        console.error(e);
         yield put({
             type: ADD_COMMENT_FAILURE,
             error: e,
@@ -152,7 +159,7 @@ function* watchAddComment() {
 
 //포스트에 댓글 가져오는 함수
 function loadCommentsAPI(postId) {
-    return axios.get(`/post/${data.postId}/comments`);
+    return axios.get(`/post/${postId}/comments`);
 }
 
 function* loadComments(action) { //action = watch함수에서 받은 req액션안에 값, dispatch할때 같이 있던 값
@@ -162,7 +169,7 @@ function* loadComments(action) { //action = watch함수에서 받은 req액션�
             type:LOAD_COMMENTS_SUCCESS,
             data: {
                 postId: action.data,
-                comment: result.data,
+                comments: result.data,
             },
         });
     }catch (e) {
@@ -176,16 +183,42 @@ function* watchLoadComments() {
     yield takeLatest(LOAD_COMMENTS_REQUEST, loadComments);
 }
 
+//이미지 업로드하는 함수
+function uploadImagesAPI(formData) {
+    return axios.post(`/post/images`, formData, {
+        withCredentials: true,
+    });
+}
+
+function* uploadImages(action) { //action = watch함수에서 받은 req액션안에 값, dispatch할때 같이 있던 값
+    try {
+        const result = yield call(uploadImagesAPI, action.data);
+        yield put({
+            type: UPLOAD_IMAGES_SUCCESS,
+            data: result.data,
+        });
+    }catch (e) {
+        yield put({
+            type: UPLOAD_IMAGES_FAILURE,
+            error: e,
+        });
+    }
+}
+function* watchUploadImages() {
+    yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
+
 
 //시작점
 export default function* postSaga() {
     yield all([
         fork(watchAddPost),
         fork(watchLoadPosts),
-        fork(watchAddComment),
         fork(watchLoadHashtagPosts),
         fork(watchLoadUserPosts),
         fork(watchLoadComments),
+        fork(watchAddComment),
+        fork(watchUploadImages),
 
     ]);
 }
