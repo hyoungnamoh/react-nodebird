@@ -13,6 +13,8 @@ router.get('/:tag', async (req, res, next) => {
                 where: { name: decodeURIComponent(req.params.tag)},
             }, {
                 model: db.User,
+            }, {
+                model: db.Image,
             }],
         });
         res.json(posts);

@@ -132,6 +132,8 @@ router.get('/:id/posts', async (req, res, next) => {
             include: [{
                 model: db.User,
                 attributes: ['id', 'nickname'],
+            }, {
+                model: db.Image,
             }],
         });
         res.json(posts);

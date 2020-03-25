@@ -4,6 +4,7 @@ const db = require('../models');
 const { isLoggedIn } = require('./middleware');
 const multer = require('multer');
 const path = require('path');
+//업로드 설정
 const upload = multer({
     storage: multer.diskStorage({ //저장 옵션 서버쪽 디스크에 저장
         destination(req, file, done){
@@ -20,9 +21,12 @@ const upload = multer({
 });
 
 //게시글 작성하기
-router.post('/', isLoggedIn, async (req, res, next) => {
+router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { //이미지 주소들만 올릴때, 파일이 아닌 텍스트만 올리기 때문에 none() 사용
+    //formData 파일 => req.file(s)
+    //formData 일반 값 => req.body
     try{
         //해시태그 찾는 정규표현식, 정규표현식에 걸리는애들 hashtags에 배열로 넣음
+        console.log(req.body.content);
         const hashtags = req.body.content.match(/#[^\s]+/g);
         const newPost = await db.Post.create({
             content: req.body.content,
@@ -34,6 +38,17 @@ router.post('/', isLoggedIn, async (req, res, next) => {
             })));
             await newPost.addHashtags(result.map(r => r[0])); //시퀄라이즈가 만들어주는 함수 Post와 Hashtag 의 관계를 추가해주는 역할, add 외에도 get,set,remove 등 있음
         }
+        if(req.body.image){ //프론트에서 넘겨줄때 담은 값
+            if(Array.isArray(req.body.image)){ //배열인지 구분, 여러개 올렸을 경우와 하나만 올렸을 경우와 모양이 다름, 여러개 올리면 배열, 하나만 올리면 image: 주소1
+                const images = await Promise.all(req.body.image.map((image) => { //동시에 여러가지 디비 쿼리, 배열을 맵으로 해서 원하는 db작업하고 Promise.all 하면 한번에 처리됨
+                    return db.Image.create({ src: image });
+                }));
+                await newPost.addImage(images);
+            }else{ //한장일 경우
+                const image = await db.Image.create({ src: req.body.image }); //이미지 주소 저장
+                await newPost.addImage(image); //이미지 주소를 따로 DB에 저장한 후 게시글과 연결
+            }
+        }
         // const User = await newPost.getUser(); newPost에 연결되어있는 유저정보를 가져옴
         // newPost.User = User; // 유저정보를 합침, user에 다른 데이터들을 넣어줘야함
         // res.json(newUser);
@@ -41,6 +56,8 @@ router.post('/', isLoggedIn, async (req, res, next) => {
             where: { id: newPost.id },
             include: [{
                 model: db.User,
+            }, {
+                model: db.Image,
             }],
         });
         res.json(fullUser);
