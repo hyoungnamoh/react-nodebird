@@ -83,7 +83,7 @@ function* watchLoadUserPosts() {
 
 //해시태그 포스트 가져오기
 function loadHashtagPostsAPI(tag) {
-    return axios.get(`/hashtag/${tag}`, {
+    return axios.get(`/hashtag/${encodeURIComponent(tag)}`, {
         withCredentials: true,
     });
 }

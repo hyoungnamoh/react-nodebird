@@ -6,7 +6,7 @@ import {Avatar, Card} from "antd";
 import {LOAD_USER_REQUEST} from "../reducers/user";
 import PropTypes from 'prop-types';
 
-const User = ({ id }) => {
+const User = () => {
     const dispatch = useDispatch();
     const { mainPosts } = useSelector(state => state.post);
     const { userInfo } = useSelector(state => state.user);
@@ -72,9 +72,18 @@ User.propTypes = {
 //server에서 보내준 tag, Next js 에서 제공하는 getInitialProps란 메서드를 사용해 값을 가져올 수 있음
 User.getInitialProps = async (context) => { //여기서 context 가 _app.js 에서 보내준 {ctx}
     //props로 데이터를 또 내려보낼 수 있음
+    const id = parseInt(context.query.id, 10);
+    context.store. dispatch({
+        type: LOAD_USER_REQUEST,
+        data: id,
+    });
+    context.store. dispatch({
+        type: LOAD_USER_POSTS_REQUEST,
+        data: id,
+    });
     return {
         //여기서 dispatch 해주면 서버쪽에서 실행 됨 => 서버쪽에서 미리 완성되어 첫 렌더링 부터 값이 모두 들어가있게 할 수 있음
-        id: parseInt(context.query.id, 10)
+        id
     }
 }
 /*
