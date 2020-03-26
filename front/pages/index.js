@@ -9,16 +9,10 @@ import {LOAD_MAIN_POSTS_REQUEST} from "../reducers/post";
 
 const Home = () => {
     //setState 같은 친구
-    const dispatch = useDispatch();
+
     //useState 같은 친구
     const {me} = useSelector(state => state.user); //전체 state에서 user를 가져옴,
-
     const {mainPosts} = useSelector(state => state.post); //잘게 쪼개서 쓰는게 좋음
-    useEffect(() => {
-        dispatch({
-            type: LOAD_MAIN_POSTS_REQUEST,
-        })
-    }, []);
     return (
         <div>
             {me && <PostForm/>}
@@ -29,6 +23,13 @@ const Home = () => {
             })}
         </div>
     );
+};
+
+Home.getInitialProps = async (context) => {
+    console.log(Object.keys(context)); //store 등 여러 키값이 들어있음
+    context.store.dispatch({
+        type: LOAD_MAIN_POSTS_REQUEST,
+    });
 };
 
 export default Home;

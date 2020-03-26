@@ -5,10 +5,13 @@ import withRedux from 'next-redux-wrapper';
 import { applyMiddleware, compose, createStore } from 'redux';
 import { Provider } from 'react-redux';
 import createSagaMiddleware from 'redux-saga';
+import withReduxSaga from 'next-redux-saga';
 
 import AppLayout from '../components/AppLayout';
 import reducer from '../reducers';
 import rootSaga from '../sagas';
+import {LOAD_USER_REQUEST} from "../reducers/user";
+import axios from 'axios';
 //리액트 컴포넌트들의 중앙통제실, 리덕스 스테이트들을 제공
 
 //_app.js -> layout
@@ -44,7 +47,20 @@ Hashtag.getInitialProps = async (constex) => {
 //동적 주소 데이터 받기
 NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내려줌
     const { ctx } = context;
+    const state = ctx.store.getState();
+    const cookie = ctx.isServer ? ctx.req.headers.cookie : ''; //server가 아닐 때 ctx.req.headers.cookie 얘가 undefined 임 
+    // console.log('cookie:', cookie);
+    if(ctx.isServer && cookie){ //server일 경우만 실행 프론트일 경우 필요없음
+        axios.defaults.headers.Cookie = cookie;
+    }
+
     let pageProps = {};
+    // console.log('state', state);
+    if(!state.user.me){
+        ctx.store.dispatch({
+            type: LOAD_USER_REQUEST,
+        });
+    }
     if(context.Component.getInitialProps){
         pageProps = await context.Component.getInitialProps(ctx);
     }
@@ -67,6 +83,7 @@ const configureStore = (initialState, options) => {
     const store = createStore(reducer, initialState, enhancer); //
     //미들웨어에 root사가 연결
     sagaMiddleware.run(rootSaga);
+    store.sagaTask = sagaMiddleware.run(rootSaga);
     return store;
 }
-export default withRedux(configureStore)(NodeBird);
+export default withRedux(configureStore)(withReduxSaga(NodeBird));

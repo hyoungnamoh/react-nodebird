@@ -9,15 +9,6 @@ import {LOAD_USER_REQUEST} from "../reducers/user";
 const AppLayout = ({ children }) => {
     //사용자가 어느 페이지에서 접속할지 모르기 때문에 공통 레이아웃으로 뺌
     const { me } = useSelector(state => state.user);
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        if(!me){
-            dispatch({
-                type: LOAD_USER_REQUEST,
-            });
-        }
-    }, []);
     return (
         <div>
             <Menu mode="horizontal">
