@@ -8,7 +8,6 @@ const Signup = () => {
     //redux
     const dispatch = useDispatch();
     const {isSigningUp, me} = useSelector(state => state.user);
-    const munde = useSelector(state => state);
 
     //custom hook
     const useInput = useCallback((initValue = null) => {
@@ -30,7 +29,8 @@ const Signup = () => {
 
     //로그인 시 회원가입 폼 초기화
     useEffect(() => {
-        if(id){
+        console.log("me", me);
+        if(me){
             alert('로그인했으니 메인페이지로 이동합니다.')
             Router.push('/');
         }
@@ -68,7 +68,9 @@ const Signup = () => {
         });
     }, [id, nick, password,passwordCheck, termError]);
 
-
+    if(me) {
+        return null;
+    }
     return (
         <>
             <Form onSubmit={onSubmit} style={{ padding: 10 }}>

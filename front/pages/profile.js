@@ -19,23 +19,7 @@ const Profile = () => {
     const {mainPosts} = useSelector(state => state.post);
 
 
-    useEffect(() => {
-        if(me){
-            dispatch({
-                type: LOAD_FOLLOWERS_REQUEST,
-                data: me.id,
-            });
-            dispatch({
-                type: LOAD_FOLLOWINGS_REQUEST,
-                data: me.id,
-            });
-            dispatch({
-                type: LOAD_USER_POSTS_REQUEST,
-                data: me.id,
-            });
-        }
-    }, []);
-    
+
     //팔로잉 취소
     const onUnFollow = useCallback(userId => () => {
         dispatch({
@@ -43,7 +27,7 @@ const Profile = () => {
             data: userId,
         });
     }, [me && me.id]);
-    
+
     //내 팔로워 차단
     const onRemoveFollower = useCallback(userId => () => {
         dispatch({
@@ -51,6 +35,23 @@ const Profile = () => {
             data: userId,
         });
     }, [me && me.id]);
+
+    //팔로잉 더 보기
+    const loadMoreFollowings = useCallback(() => {
+        console.log('onclick following');
+        dispatch({
+            type: LOAD_FOLLOWINGS_REQUEST,
+            offset: followingList.length,
+        })
+    }, [followerList.length]);
+    //팔로워 더 보기
+    const loadMoreFollowers = useCallback(() => {
+        console.log('onclick follower');
+        dispatch({
+            type: LOAD_FOLLOWERS_REQUEST,
+            offset: followerList.length,
+        })
+    }, [followerList.length]);
     return (
         <div>
             <NicknameEditForm/>
@@ -59,7 +60,7 @@ const Profile = () => {
             grid={{gutter: 4, xs: 2, md: 3}}
             size="small"
             header={<div>팔로잉 목록</div>}
-            loadMore={<Button style={{width: '100%'}}>더보기</Button>}
+            loadMore={<Button style={{width: '100%'}} onClick={loadMoreFollowings}>더보기</Button>}
             bordered
             dataSource = {followingList}
             renderItem={item => (
@@ -74,7 +75,7 @@ const Profile = () => {
                 grid={{gutter: 4, xs: 2, md: 3}}
                 size="small"
                 header={<div>팔로워 목록</div>}
-                loadMore={<Button style={{width: '100%'}}>더보기</Button>}
+                loadMore={<Button style={{width: '100%'}} onClick={loadMoreFollowers}>더보기</Button>}
                 bordered
                 dataSource = {followerList}
                 renderItem={item => (
@@ -92,6 +93,26 @@ const Profile = () => {
         </div>
 
     );
+};
+
+Profile.getInitialProps = async (context) => {
+    const state = context.store.getState();
+    /*
+        app.js 보면 얘 실행 직전에 LOAD_USERS_REQUEST 가 실행되는데
+        얘가 SUCCESS 되어야 me 가 생김 그런데 SUCCESS 가 얘네가 호출 다 끝나고 나서 쯤에 실행됨
+     */
+        context.store.dispatch({
+            type: LOAD_FOLLOWERS_REQUEST,
+            data: state.user.me && state.user.me.id,
+        });
+        context.store.dispatch({
+            type: LOAD_FOLLOWINGS_REQUEST,
+            data: state.user.me && state.user.me.id,
+        });
+        context.store.dispatch({
+            type: LOAD_USER_POSTS_REQUEST,
+            data: state.user.me && state.user.me.id,
+        });
 };
 
 export default Profile;

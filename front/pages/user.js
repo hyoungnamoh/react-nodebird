@@ -7,20 +7,8 @@ import {LOAD_USER_REQUEST} from "../reducers/user";
 import PropTypes from 'prop-types';
 
 const User = () => {
-    const dispatch = useDispatch();
     const { mainPosts } = useSelector(state => state.post);
     const { userInfo } = useSelector(state => state.user);
-
-    useEffect(() => {
-        dispatch({
-            type: LOAD_USER_REQUEST,
-            data: id,
-        });
-        dispatch({
-            type: LOAD_USER_POSTS_REQUEST,
-            data: id,
-        });
-    }, []);
     return (
         <div>
             {userInfo

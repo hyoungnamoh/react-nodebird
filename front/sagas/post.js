@@ -24,10 +24,15 @@ import {
     LIKE_POST_SUCCESS,
     LIKE_POST_FAILURE,
     LIKE_POST_REQUEST,
-    UNLIKE_POST_SUCCESS, UNLIKE_POST_FAILURE, UNLIKE_POST_REQUEST
+    UNLIKE_POST_SUCCESS,
+    UNLIKE_POST_FAILURE,
+    UNLIKE_POST_REQUEST,
+    REMOVE_POST_REQUEST,
+    REMOVE_POST_SUCCESS,
+    REMOVE_POST_FAILURE
 } from "../reducers/post";
 import axios from 'axios';
-import {ADD_POST_TO_ME} from "../reducers/user"; //한번 불러온 모듈은 캐싱돼서 다른데에서 baseurl 사용하면 공유됨
+import {ADD_POST_TO_ME, REMOVE_POST_OF_ME} from "../reducers/user"; //한번 불러온 모듈은 캐싱돼서 다른데에서 baseurl 사용하면 공유됨
 
 //모든 게시물 가져오기
 function loadMainPostsAPI() {
@@ -57,7 +62,7 @@ function* watchLoadPosts() {
 
 //유저 포스트 가져오기
 function loadUserPostsAPI(id) {
-    return axios.get(`/user/${id}/posts`, {
+    return axios.get(`/user/${id || 0}/posts`, {
         withCredentials: true,
     });
 }
@@ -275,6 +280,35 @@ function* watchUnLikePost() {
     yield takeLatest(UNLIKE_POST_REQUEST, unLikePost);
 }
 
+//포스트 삭제하는 함수
+function removePostAPI(postId) {
+    return axios.delete(`/post/${postId}`, {
+        withCredentials: true,
+    });
+}
+
+function* removePost(action) {
+    try {
+        const result = yield call(removePostAPI, action.data);
+        yield put({
+            type: REMOVE_POST_SUCCESS,
+            data: result.data,
+        });
+        yield put({
+            type: REMOVE_POST_OF_ME,
+            data: result.data,
+        });
+    }catch (e) {
+        yield put({
+            type: REMOVE_POST_FAILURE,
+            error: e,
+        });
+    }
+}
+function* watchRemovePost() {
+    yield takeLatest(REMOVE_POST_REQUEST, removePost);
+}
+
 
 
 
@@ -290,5 +324,6 @@ export default function* postSaga() {
         fork(watchUploadImages),
         fork(watchLikePost),
         fork(watchUnLikePost),
+        fork(watchRemovePost),
     ]);
 }

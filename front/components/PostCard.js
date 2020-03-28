@@ -1,8 +1,14 @@
-import {Button, Form, Input, Card, Icon, Avatar, List, Comment} from "antd";
+import {Button, Form, Input, Card, Icon, Avatar, List, Comment, Popover} from "antd";
 import React, {useCallback, useState, useEffect} from "react";
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch} from "react-redux";
-import {ADD_COMMENT_REQUEST, LIKE_POST_REQUEST, LOAD_COMMENTS_REQUEST, UNLIKE_POST_REQUEST} from "../reducers/post";
+import {
+    ADD_COMMENT_REQUEST,
+    LIKE_POST_REQUEST,
+    LOAD_COMMENTS_REQUEST,
+    REMOVE_POST_REQUEST,
+    UNLIKE_POST_REQUEST
+} from "../reducers/post";
 import Link from "next/link";
 import PostImages from "./PostImages";
 import {FOLLOW_USER_REQUEST, UNFOLLOW_USER_REQUEST} from "../reducers/user";
@@ -10,7 +16,7 @@ import {FOLLOW_USER_REQUEST, UNFOLLOW_USER_REQUEST} from "../reducers/user";
 const PostCard = ({post}) => {
     //redux
     const {me} = useSelector(state => state.user);
-    const {isCommentAdded, isAddingComment} = useSelector(state => state.post);
+    const { isCommentAdded, isAddingComment} = useSelector(state => state.post);
     const dispatch = useDispatch();
     //state
     const [commentFormOpened, setCommentFormOpened] = useState(false);
@@ -89,6 +95,14 @@ const PostCard = ({post}) => {
         });
     }, []);
 
+    //게시글 삭제
+    const onRemovePost = useCallback(userId => () => {
+        dispatch({
+            type: REMOVE_POST_REQUEST,
+            data: userId,
+        });
+    }, []);
+
     return (
         <div>
             <Card
@@ -98,7 +112,24 @@ const PostCard = ({post}) => {
                     <Icon type="retweet" key= "retweets"/>,
                     <Icon type="heart" key= "heart" theme={liked ? 'twoTone' : 'outlined'} twoToneColor={'#eb2f96'} onClick={onToggleLike}/>,
                     <Icon type="message" key= "message" onClick={onToggleComment}/>,
-                    <Icon type="ellipsis" key= "ellipsis"/>,
+                    <Popover
+                        key = "ellipsis"
+                        content={(
+                            <Button.Group>
+                                {me && post.UserId === me.id
+                                ? (
+                                    <>
+                                        <Button>수정</Button>
+                                        <Button type="danger" onClick={onRemovePost(post.id)}>삭제</Button>
+
+                                    </>
+                                )
+                                : <Button>신고</Button>}
+                            </Button.Group>
+                        )}
+                        >
+                        <Icon type="ellipsis"/>
+                    </Popover>,
                 ]}
                 extra={ !me || post.User.id === me.id
                     ? null //로그인을 안했거나 내 게시글을 보고있을 경우

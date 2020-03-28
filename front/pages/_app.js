@@ -46,7 +46,8 @@ Hashtag.getInitialProps = async (constex) => {
  */
 //동적 주소 데이터 받기
 NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내려줌
-    const { ctx } = context;
+    const { ctx, Component } = context;
+    let pageProps = {};
     const state = ctx.store.getState();
     const cookie = ctx.isServer ? ctx.req.headers.cookie : ''; //server가 아닐 때 ctx.req.headers.cookie 얘가 undefined 임
     // console.log('cookie:', cookie);
@@ -54,7 +55,7 @@ NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내
         axios.defaults.headers.Cookie = cookie;
     }
 
-    let pageProps = {};
+
     // console.log('state', state);
     if(!state.user.me){
         ctx.store.dispatch({
@@ -62,7 +63,7 @@ NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내
         });
     }
     if(context.Component.getInitialProps){
-        pageProps = await context.Component.getInitialProps(ctx);
+        pageProps = await context.Component.getInitialProps(ctx) || {};
     }
     return {pageProps}; //Component 에 props로 넘겨줌 그 넘겨준걸
 }
@@ -79,7 +80,7 @@ const configureStore = (initialState, options) => {
 
     //redux의 기능을 향상시킴
     const enhancer = process.env.NODE_ENV === 'production' //실제 서비스면
-        ? compose(applyMiddleware(...middlewares),)
+        ? compose(applyMiddleware(...middlewares))
         : compose(applyMiddleware(...middlewares),
             //확장 프로그램을 깔게되면 window.__REDUX_DEVTOOLS_EXTENSION__() 생김, 기존 미들웨어들에 사용할 미들웨어를 추가해서 합성
             //배포할 땐 빼야함, 데이터가 어떻게 돌아가는지 전부 노출됨
@@ -89,7 +90,6 @@ const configureStore = (initialState, options) => {
     const store = createStore(reducer, initialState, enhancer); //
 
     //미들웨어에 root사가 연결
-    sagaMiddleware.run(rootSaga);
     store.sagaTask = sagaMiddleware.run(rootSaga);
     return store;
 }

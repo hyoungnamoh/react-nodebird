@@ -24,7 +24,7 @@ export const LOG_OUT_SUCCESS = 'LOG_OUT_SUCCESS';
 export const LOG_OUT_FAILURE = 'LOG_OUT_FAILURE';
 
 //회원가입하는 액션
-export const SIGN_UP_REQUEST = 'SIGN_UP_REQUEST'; 
+export const SIGN_UP_REQUEST = 'SIGN_UP_REQUEST';
 export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS';
 export const SIGN_UP_FAILURE = 'SIGN_UP_FAILURE';
 
@@ -60,11 +60,15 @@ export const REMOVE_FOLLOWER_FAILURE = 'REMOVE_FOLLOWER_FAILURE';
 
 //
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
+export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
+
 
 //내 정보 수정
 export const EDIT_NICKNAME_REQUEST = 'EDIT_NICKNAME_REQUEST';
 export const EDIT_NICKNAME_SUCCESS = 'EDIT_NICKNAME_SUCCESS';
 export const EDIT_NICKNAME_FAILURE = 'EDIT_NICKNAME_FAILURE';
+
+
 
 
 
@@ -222,7 +226,9 @@ const reducer = (state = initialState, action) => {
         case LOAD_FOLLOWERS_SUCCESS : {
             return{
                 ...state,
-                followerList: action.data,
+                //기존 팔로워리스트를 덮는게 아니라 추가하는 방식
+                // followerList: state.followerList.concat(action.data),
+                followerList: state.followerList.concat(action.data),
             }
         }
         case LOAD_FOLLOWERS_FAILURE : {
@@ -238,7 +244,9 @@ const reducer = (state = initialState, action) => {
         case LOAD_FOLLOWINGS_SUCCESS : {
             return{
                 ...state,
-                followingList: action.data,
+                //기존 팔로워리스트를 덮는게 아니라 추가하는 방식
+                // followingList: state.followingList.concat(action.data),
+                followingList: state.followingList.concat(action.data),
             }
         }
         case LOAD_FOLLOWINGS_FAILURE : {
@@ -286,6 +294,15 @@ const reducer = (state = initialState, action) => {
             return{
                 ...state,
                 isEditingNickName: false,
+            }
+        }
+        case REMOVE_POST_OF_ME : {
+            return{
+                ...state,
+                me: {
+                    ...state.me,
+                    Posts: state.me.Posts.filter(v => v.id !== action.data),
+                }
             }
         }
         default : {
