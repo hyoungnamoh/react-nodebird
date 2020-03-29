@@ -43,7 +43,7 @@ const Profile = () => {
             type: LOAD_FOLLOWINGS_REQUEST,
             offset: followingList.length,
         })
-    }, [followerList.length]);
+    }, [followingList.length]);
     //팔로워 더 보기
     const loadMoreFollowers = useCallback(() => {
         console.log('onclick follower');

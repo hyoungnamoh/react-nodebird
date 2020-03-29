@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models');
-const { isLoggedIn } = require('./middleware');
+const { isLoggedIn, isExistPost } = require('./middleware');
 const multer = require('multer');
 const path = require('path');
 //업로드 설정
@@ -105,13 +105,8 @@ router.post('/:id/comment', isLoggedIn, async (req, res, next) => {
     }
 });
 //댓글 가져오기
-router.get('/:id/comments', async (req, res, next) => {
+router.get('/:id/comments', isExistPost, async (req, res, next) => {
     try{
-        const post = await db.Post.findOne({where: { id: req.params.id }});
-        //부모격인 post가 있는지 먼저 확인
-        if(!post){
-            return res.status(404).send('포스트가 존재하지 않습니다.');
-        }
         const comments = await db.Comment.findAll({
             where: {
                 postId: req.params.id,
@@ -130,12 +125,9 @@ router.get('/:id/comments', async (req, res, next) => {
 });
 
 //좋아요 누르기
-router.post('/:id/like', isLoggedIn, async (req, res, next) => {
+router.post('/:id/like', isLoggedIn, isExistPost, async (req, res, next) => {
     try{
         const post = await db.Post.findOne({ where: { id: req.params.id }});
-        if(!post){
-            return res.status(404).send('포스트가 존재하지 않습니다.');
-        }
         await post.addLikers(req.user.id);
         res.json({ userId: req.user.id});
     } catch(e){
@@ -145,12 +137,9 @@ router.post('/:id/like', isLoggedIn, async (req, res, next) => {
 });
 
 //좋아요 최소하기
-router.delete('/:id/like', isLoggedIn, async (req, res, next) => {
+router.delete('/:id/like', isLoggedIn, isExistPost, async (req, res, next) => {
     try{
         const post = await db.Post.findOne({ where: { id: req.params.id }});
-        if(!post){
-            return res.status(404).send('포스트가 존재하지 않습니다.');
-        }
         await post.removeLikers(req.user.id);
         res.json({ userId: req.user.id});
     } catch(e){
@@ -160,12 +149,8 @@ router.delete('/:id/like', isLoggedIn, async (req, res, next) => {
 });
 
 //포스트 삭제하기
-router.delete('/:id', isLoggedIn, async (req, res, next) => {
+router.delete('/:id', isLoggedIn, isExistPost, async (req, res, next) => {
     try{
-        const post = await db.Post.findOne({ where: { id: req.params.id }});
-        if(!post){
-            return res.status(404).send('포스트가 존재하지 않습니다.');
-        }
         await db.Post.destroy({ where: {id: req.params.id }});
         res.send(req.params.id);
     } catch(e){
