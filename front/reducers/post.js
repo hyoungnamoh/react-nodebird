@@ -78,31 +78,42 @@ const reducer = (state = initialState, action) => {
     return produce(state, (draft) => {
         switch (action.type) {
             case ADD_POST_REQUEST: {
-                return {
-                    ...state,
-                    isAddingPost: false,
-                    postAdded: false,
-                    isLogging: true,
-                };
+                // return {
+                //     ...state,
+                //     isAddingPost: false,
+                //     postAdded: false,
+                //     isLogging: true,
+                // };
+                draft.isAddingPost = true;
+                draft.potAdded = false;
+                break;
             }
             case ADD_POST_SUCCESS: {
-                draft.
-                return {
-                    ...state,
-                    isAddingPost: true,
-                    mainPosts: [action.data, ...state.mainPosts],
-                    postAdded: true,
-                    isLogging: false,
-                    imagePaths: [],
-                };
+                // return {
+                //     ...state,
+                //     isAddingPost: true,
+                //     mainPosts: [action.data, ...state.mainPosts],
+                //     postAdded: true,
+                //     isLogging: false,
+                //     imagePaths: [],
+                // };
+                draft.isAddingPost = false;
+                draft.mainPosts.unshift(action.data); //unshift 배열에 새로운 배열 요소를 맨앞에 추가하고 길이를 반환
+                draft.postAdded = true;
+                draft.imagePaths = [];
+                break;
             }
             case ADD_POST_FAILURE: {
-                return {
-                    ...state,
-                    isAddingPost: true,
-                    addPostErrorReason: action.error,
-                    isLogging: false,
-                };
+                // return {
+                //     ...state,
+                //     isAddingPost: true,
+                //     addPostErrorReason: action.error,
+                //     isLogging: false,
+                // };
+                draft.isAddingPost = true;
+                draft.addPostErrorReason = action.error;
+                draft.isLogging = false;
+                break;
             }
             case LOAD_MAIN_POSTS_REQUEST:
             case LOAD_HASHTAG_POSTS_REQUEST:
@@ -138,17 +149,25 @@ const reducer = (state = initialState, action) => {
             }
             case ADD_COMMENT_SUCCESS: {
                 //불변성 유지
-                const postIndex = state.mainPosts.findIndex(v => v.id=== action.data.postId);
-                const post = state.mainPosts[postIndex];
-                const Comments = [...post.Comments, action.data.comment];
-                const mainPosts = [...state.mainPosts];
-                mainPosts[postIndex] = {...post, Comments};
-                return {
-                    ...state,
-                    isAddingComment: false,
-                    mainPosts,
-                    commentAdded: true,
-                };
+                // const postIndex = state.mainPosts.findIndex(v => v.id=== action.data.postId);
+                // const post = state.mainPosts[postIndex];
+                // const Comments = [...post.Comments, action.data.comment];
+                // const mainPosts = [...state.mainPosts];
+                // mainPosts[postIndex] = {...post, Comments};
+                // return {
+                //     ...state,
+                //     isAddingComment: false,
+                //     mainPosts,
+                //     commentAdded: true,
+                // };
+
+                //immer 적용
+
+                const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+                draft.mainPosts[postIndex].Comments.push(action.data.comment);
+                draft.isAddingComment = false;
+                draft.commentAdded = true;
+                break;
             }
             case ADD_COMMENT_FAILURE: {
                 return {
@@ -158,15 +177,18 @@ const reducer = (state = initialState, action) => {
                 };
             }
             case LOAD_COMMENTS_SUCCESS:{
-                const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
-                const post = state.mainPosts[postIndex];
-                const Comments = action.data.comments;
-                const mainPosts = [...state.mainPosts];
-                mainPosts[postIndex] = { ...post, Comments };
-                return {
-                    ...state,
-                    mainPosts,
-                };
+                // const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
+                // const post = state.mainPosts[postIndex];
+                // const Comments = action.data.comments;
+                // const mainPosts = [...state.mainPosts];
+                // mainPosts[postIndex] = { ...post, Comments };
+                // return {
+                //     ...state,
+                //     mainPosts,
+                // };
+                const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+                draft.mainPosts[postIndex].Comments = action.data.comments;
+
             }
             case UPLOAD_IMAGES_REQUEST: {
                 return {
