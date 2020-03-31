@@ -26,7 +26,6 @@ router.post('/', isLoggedIn, upload.none(), async (req, res, next) => { //이미
     //formData 일반 값 => req.body
     try{
         //해시태그 찾는 정규표현식, 정규표현식에 걸리는애들 hashtags에 배열로 넣음
-        console.log(req.body.content);
         const hashtags = req.body.content.match(/#[^\s]+/g);
         const newPost = await db.Post.create({
             content: req.body.content,

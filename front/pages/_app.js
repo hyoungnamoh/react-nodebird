@@ -1,5 +1,4 @@
 import React from 'react';
-import Head from 'next/head';
 import PropTypes from 'prop-types';
 import withRedux from 'next-redux-wrapper';
 import { applyMiddleware, compose, createStore } from 'redux';
@@ -12,6 +11,9 @@ import reducer from '../reducers';
 import rootSaga from '../sagas';
 import {LOAD_USER_REQUEST} from "../reducers/user";
 import axios from 'axios';
+import Helmet from 'react-helmet';
+import {Container} from "next/app";
+
 //리액트 컴포넌트들의 중앙통제실, 리덕스 스테이트들을 제공
 
 //_app.js -> layout
@@ -19,18 +21,42 @@ import axios from 'axios';
 //store 를 자식 컴포넌트들한테 store 를 물려줌으로 써 모든 컴포넌트들이 state에 접근할 수 있게됨
 const NodeBird = ({Component, store, pageProps }) => { //pageProps 받은걸
     return (
-        <Provider store={store}>
-            <Head>
-                <title>NodeBird</title>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/antd/3.16.2/antd.css" />
-                {/*React Slick*/}
-                <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
-                <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
-            </Head>
-            <AppLayout>
-                <Component{...pageProps}/> {/*페이지들, 여기로 pageProps 넘겨줌*/}
-            </AppLayout>
-        </Provider>
+        <Container>
+            <Provider store={store}>
+                <Helmet
+                    title="NodeBird"
+                    htmlAttributes={{ lang: 'ko' }}
+                    meta={[{
+                        charset: 'UTF-8',
+                    }, {
+                        name: 'viewport',
+                        content: 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=yes,viewport-fit=cover',
+                    }, {
+                        'http-equiv': 'X-UA-Compatible', content: 'IE=edge',
+                    }, {
+                        name: 'description', content: '제로초의 NodeBird SNS',
+                    }, {
+                        name: 'og:title', content: 'NodeBird',
+                    }, {
+                        name: 'og:description', content: '제로초의 NodeBird SNS',
+                    }, {
+                        property: 'og:type', content: 'website',
+                    }]}
+                    link={[{
+                        rel: 'shortcut icon', href: '/favicon.ico',
+                    }, {
+                        rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/antd/3.16.2/antd.css',
+                    }, {
+                        rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css',
+                    }, {
+                        rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css',
+                    }]}
+                />
+                <AppLayout>
+                    <Component{...pageProps}/> {/*페이지들, 여기로 pageProps 넘겨줌*/}
+                </AppLayout>
+            </Provider>
+        </Container>
     );
 }
 
@@ -50,13 +76,11 @@ NodeBird.getInitialProps =async (context) => { //app(Next) 에서 context를 내
     let pageProps = {};
     const state = ctx.store.getState();
     const cookie = ctx.isServer ? ctx.req.headers.cookie : ''; //server가 아닐 때 ctx.req.headers.cookie 얘가 undefined 임
-    // console.log('cookie:', cookie);
     if(ctx.isServer && cookie){ //server일 경우만 실행 프론트일 경우 필요없음
         axios.defaults.headers.Cookie = cookie;
     }
 
 
-    // console.log('state', state);
     if(!state.user.me){
         ctx.store.dispatch({
             type: LOAD_USER_REQUEST,
@@ -74,7 +98,6 @@ const configureStore = (initialState, options) => {
 
     //redux에 사가미들웨어를 연결 + 로깅하는 커스텀 미들웨어
     const middlewares = [sagaMiddleware, (store) => (next) => (action) => {
-        console.log('action', action);
         next(action);
     }]; //store에서 action state reducer 과정 사이에서 과정을 변경하거나 기능을 추가, 변경할 수 있음
 

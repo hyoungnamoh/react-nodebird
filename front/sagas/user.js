@@ -216,7 +216,6 @@ function removeFollowerAPI(userId) {
 function* removeFollower(action) {
     try {
         const result = yield call(removeFollowerAPI, action.data);
-        console.log("removeFollower");
         yield put({
             type: REMOVE_FOLLOWER_SUCCESS,
             data: result.data,

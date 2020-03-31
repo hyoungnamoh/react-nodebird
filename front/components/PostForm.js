@@ -23,7 +23,6 @@ const PostForm = () => {
 
     //실제로 이미지 업로드 했을 때
     const onChangeImages = useCallback((e) => {
-        console.log(e.target.value);
         const imageFormData = new FormData();
         [].forEach.call(e.target.files, (f) => {
             imageFormData.append('image', f);

@@ -60,7 +60,6 @@ router.get('/:id', async (req, res, next) => { //남의 정보 가져오기 :id 
             attributes: ['id', 'nickname'],
         });
         const jsonUser = user.toJSON();
-        console.log('jsonUser' , jsonUser);
         jsonUser.Posts = jsonUser.Posts ? jsonUser.Posts.length : 0;
         jsonUser.Followings = jsonUser.Followings ? jsonUser.Followings.length : 0;
         jsonUser.Followers = jsonUser.Followers ? jsonUser.Followers.length : 0;

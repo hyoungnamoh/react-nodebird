@@ -38,7 +38,6 @@ const Profile = () => {
 
     //팔로잉 더 보기
     const loadMoreFollowings = useCallback(() => {
-        console.log('onclick following');
         dispatch({
             type: LOAD_FOLLOWINGS_REQUEST,
             offset: followingList.length,
@@ -46,7 +45,6 @@ const Profile = () => {
     }, [followingList.length]);
     //팔로워 더 보기
     const loadMoreFollowers = useCallback(() => {
-        console.log('onclick follower');
         dispatch({
             type: LOAD_FOLLOWERS_REQUEST,
             offset: followerList.length,

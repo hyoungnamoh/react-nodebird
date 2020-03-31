@@ -15,11 +15,8 @@ const Home = () => {
     const countRef = useRef([]);
 
     const onScroll = useCallback(() => {
-        // console.log("현재 스크롤한 화면에 가장 윗부분에 위치: ", window.scrollY, " 제일 윗부분 부터 스크롤 제외한 부분까지의 높이:", document.documentElement.clientHeight, " 스크롤 가능한 제일 위에서 부터 제일 아래까지의 길이: ", document.documentElement.scrollHeight );
-        console.log(window.scrollY + document.documentElement.clientHeight, document.documentElement.scrollHeight - 300);
         if(window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 300){
             if(hasMorePost){ //더 불러올 게시글이 있으면
-                console.log('infiniteScroll');
                 const lastId = mainPosts[mainPosts.length - 1].id;
                 //saga 에서 throttle 로 막아도 redux action 자체를 막을 순 없음 request 는 어쩔수없이 실행 됨
                 if(!countRef.current.includes(lastId)){ //배열에 담아둔 lastId가 있는건 제외하고
@@ -52,7 +49,6 @@ const Home = () => {
 };
 
 Home.getInitialProps = async (context) => {
-    console.log(Object.keys(context)); //store 등 여러 키값이 들어있음
     context.store.dispatch({
         type: LOAD_MAIN_POSTS_REQUEST,
     });
