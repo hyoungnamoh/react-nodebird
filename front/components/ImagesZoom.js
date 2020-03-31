@@ -3,17 +3,86 @@ import PropTypes from "prop-types";
 import PostImages from "./PostImages";
 import Slick from 'react-slick';
 import {Icon} from "antd";
+import styled from 'styled-components';
+
+const Overlay = styled.div`
+    position: 'fixed';
+    z-index: 5000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+`;
+
+// & 자기 자신을 가리키는 태그
+const Header = styled.header`
+    height: 44px;
+    background: white;
+    position: 0;
+    padding: 0;
+    text-align: center;
+    
+    & h1{
+        margin: 0;
+        font-size: 17px;
+        color: #333;
+        line-height: 44px;
+    }
+`;
+
+const H1 = styled.h1`
+
+`;
+
+const SlickWrapper = styled.div`
+    height: calc(100% - 44px);
+    background: #090909;
+`;
+
+const CloseBtn = styled(Icon)`
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 15px;
+    line-height: 14px;
+    cursor: pointer;
+`
+
+const Indicator = styled.div`
+    text-align: center;
+    & > div {
+        width: 75px;
+        height: 30px;
+        line-height: 30px;
+        border-radius: 15px;
+        background: #313131;
+        display: inline-block;
+        text-align: center;
+        color: white;
+        font-size: 15px;
+    }
+`;
+
+const ImageWrapper = styled.div`
+    padding: 32px;
+    text-align:center;
+    & img{
+        margin: 0 auto;
+        max-height: 750px;
+    }
+`;
+
 //Slick 안에 반복문을 풀어놓으면 얘네가 알아서 이미지 슬라이더가 됨
 //React Slick 공홈에 cdn _app.js 에 넣어줘야함!
 const ImagesZoom = ({images , onClose}) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     return (
         <div style={{ position: 'fixed', zIndex: 5000, top: 0, left: 0, right: 0, bottom: 0 }}>
-            <header style={{ height: 44, background: 'white', position: 'relative', padding: 0, textAlign: 'center'}}>
-                <h1 style={{ margin: 0, fontSize: '17px', color: '#333', lineHeight: '44px' }}>상세 이미지</h1>
-                <Icon type="close" onClick={onClose} style={{ position: 'absolute', right: 0, top: 0, padding: 15, lineHeight: '14px', cursor: 'pointer' }} />
-            </header>
-            <div style={{ height: 'calc(100% - 44px)', background: '#090909' }}>
+            <Header>
+                <h1>상세 이미지</h1>
+                <CloseBtn type="close" onClick={onClose}/>
+            </Header>
+            <SlickWrapper>
                 <div>
                     <Slick
                         initialSlide={0}
@@ -25,19 +94,19 @@ const ImagesZoom = ({images , onClose}) => {
                     >
                         {images.map((v) => {
                             return (
-                                <div style={{ padding: 32, textAlign: 'center' }}>
-                                    <img src={`http://localhost:8088/${v.src}`} style={{ margin: '0 auto', maxHeight: 750 }} />
-                                </div>
+                                <ImageWrapper >
+                                    <img src={`http://localhost:8088/${v.src}`} />
+                                </ImageWrapper>
                             );
                         })}
                     </Slick>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ width: 75, height: 30, lineHeight: '30px', borderRadius: 15, background: '#313131', display: 'inline-block', textAlign: 'center', color: 'white', fontSize: '15px' }}>
+                    <Indicator style={{ textAlign: 'center' }}>
+                        <div>
                             {currentSlide + 1} / {images.length}
                         </div>
-                    </div>
+                    </Indicator>
                 </div>
-            </div>
+            </SlickWrapper>
         </div>
     );
 };
