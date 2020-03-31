@@ -63,6 +63,7 @@ const NodeBird = ({Component, store, pageProps }) => { //pageProps 받은걸
 NodeBird.PropTypes ={
     Component: PropTypes.node,//node: jsx에 들어갈 수 있는 모든 것(문자열, 컴포넌트, 태그 등등)
     store: PropTypes.object,
+    pageProps: PropTypes.object.isRequired,
     //필요에 따라 여기서 store 커스터마이징
 }
 /*
