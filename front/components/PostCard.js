@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import PostImages from "./PostImages";
 import {FOLLOW_USER_REQUEST, UNFOLLOW_USER_REQUEST} from "../reducers/user";
+import styled from "styled-components";
 
 const PostCard = ({post}) => {
     //redux
@@ -103,8 +104,11 @@ const PostCard = ({post}) => {
         });
     }, []);
 
+    const CardWrapper = styled.div`
+        margin-bottom: 20px;
+    `;
     return (
-        <div>
+        <CardWrapper>
             <Card
                 key={+post.createdAt}
                 cover={post.Images[0] && <PostImages images={post.Images}/>}
@@ -179,7 +183,7 @@ const PostCard = ({post}) => {
                     />
                 </>
             }
-        </div>
+        </CardWrapper>
     );
 }
 
