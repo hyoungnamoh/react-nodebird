@@ -9,6 +9,7 @@ export const initialState = {
     isAddingComment: false,
     addCommentErrorReason: '',
     commentAdded: false,
+    singlePost: null,
 };
 
 //포스트 업로드하는 액션
@@ -71,98 +72,262 @@ export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 
 //게시글 수정하는 액션
 //
+//개별 게시글 불러오는 액션
+export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
+export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
+export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
 
 
 //immer 추가
 const reducer = (state = initialState, action) => {
+    // return produce(state, (draft) => {
+    //     switch (action.type) {
+    //         case ADD_POST_REQUEST: {
+    //             // return {
+    //             //     ...state,
+    //             //     isAddingPost: false,
+    //             //     postAdded: false,
+    //             //     isLogging: true,
+    //             // };
+    //             draft.isAddingPost = true;
+    //             draft.potAdded = false;
+    //             break;
+    //         }
+    //         case ADD_POST_SUCCESS: {
+    //             // return {
+    //             //     ...state,
+    //             //     isAddingPost: true,
+    //             //     mainPosts: [action.data, ...state.mainPosts],
+    //             //     postAdded: true,
+    //             //     isLogging: false,
+    //             //     imagePaths: [],
+    //             // };
+    //             draft.isAddingPost = false;
+    //             draft.mainPosts.unshift(action.data); //unshift 배열에 새로운 배열 요소를 맨앞에 추가하고 길이를 반환
+    //             draft.postAdded = true;
+    //             draft.imagePaths = [];
+    //             break;
+    //         }
+    //         case ADD_POST_FAILURE: {
+    //             // return {
+    //             //     ...state,
+    //             //     isAddingPost: true,
+    //             //     addPostErrorReason: action.error,
+    //             //     isLogging: false,
+    //             // };
+    //             draft.isAddingPost = true;
+    //             draft.addPostErrorReason = action.error;
+    //             draft.isLogging = false;
+    //             break;
+    //         }
+    //         case LOAD_MAIN_POSTS_REQUEST:
+    //         case LOAD_HASHTAG_POSTS_REQUEST:
+    //         case LOAD_USER_POSTS_REQUEST: {
+    //             return {
+    //                 ...state,
+    //                 mainPosts: action.lastId === 0 ? [] : state.mainPosts,
+    //                 hasMorePost: action.lastId ? state.hasMorePost : true, //처음 볼 땐 스크롤을 활성화, 더 불러오는 중이면 기존 스크롤 유지
+    //             };
+    //         }
+    //         case LOAD_MAIN_POSTS_SUCCESS:
+    //         case LOAD_HASHTAG_POSTS_SUCCESS:
+    //         case LOAD_USER_POSTS_SUCCESS: {
+    //             return {
+    //                 ...state,
+    //                 mainPosts: state.mainPosts.concat(action.data),
+    //                 hasMorePost: action.data.length === 10,
+    //             };
+    //         }
+    //         case LOAD_MAIN_POSTS_FAILURE:
+    //         case LOAD_HASHTAG_POSTS_FAILURE:
+    //         case LOAD_USER_POSTS_FAILURE: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case ADD_COMMENT_REQUEST: {
+    //             return {
+    //                 ...state,
+    //                 isAddingComment: true,
+    //                 addCommentErrorReason: '',
+    //                 commentAdded: false,
+    //
+    //             };
+    //         }
+    //         case ADD_COMMENT_SUCCESS: {
+    //             //불변성 유지
+    //             // const postIndex = state.mainPosts.findIndex(v => v.id=== action.data.postId);
+    //             // const post = state.mainPosts[postIndex];
+    //             // const Comments = [...post.Comments, action.data.comment];
+    //             // const mainPosts = [...state.mainPosts];
+    //             // mainPosts[postIndex] = {...post, Comments};
+    //             // return {
+    //             //     ...state,
+    //             //     isAddingComment: false,
+    //             //     mainPosts,
+    //             //     commentAdded: true,
+    //             // };
+    //
+    //             //immer 적용
+    //
+    //             const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+    //             draft.mainPosts[postIndex].Comments.push(action.data.comment);
+    //             draft.isAddingComment = false;
+    //             draft.commentAdded = true;
+    //             break;
+    //         }
+    //         case ADD_COMMENT_FAILURE: {
+    //             return {
+    //                 ...state,
+    //                 isAddingComment: false,
+    //                 addCommentErrorReason: action.error,
+    //             };
+    //         }
+    //         case LOAD_COMMENTS_SUCCESS:{
+    //             // const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
+    //             // const post = state.mainPosts[postIndex];
+    //             // const Comments = action.data.comments;
+    //             // const mainPosts = [...state.mainPosts];
+    //             // mainPosts[postIndex] = { ...post, Comments };
+    //             // return {
+    //             //     ...state,
+    //             //     mainPosts,
+    //             // };
+    //             const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+    //             draft.mainPosts[postIndex].Comments = action.data.comments;
+    //
+    //         }
+    //         case UPLOAD_IMAGES_REQUEST: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case UPLOAD_IMAGES_SUCCESS: {
+    //             return {
+    //                 ...state,
+    //                 imagePaths: [...state.imagePaths, ...action.data], //이미지 미리보기 경로
+    //             };
+    //         }
+    //         case UPLOAD_IMAGES_FAILURE: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case REMOVE_IMAGE: {
+    //             return{
+    //                 ...state,
+    //                 imagePaths: state.imagePaths.filter((v, i) => i !== action.index),
+    //             }
+    //         }
+    //         case LIKE_POST_REQUEST: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case LIKE_POST_SUCCESS: {
+    //             const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
+    //             const post = state.mainPosts[postIndex];
+    //             const Likers = [{id: action.data.userId}, ...post.Likers];
+    //             const mainPosts = [...state.mainPosts];
+    //             mainPosts[postIndex] = { ...post, Likers };
+    //             return {
+    //                 ...state,
+    //                 mainPosts,
+    //             };
+    //         }
+    //         case LIKE_POST_FAILURE: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case UNLIKE_POST_REQUEST: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case UNLIKE_POST_SUCCESS: {
+    //             const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
+    //             const post = state.mainPosts[postIndex];
+    //             const Likers = post.Likers.filter(v => v.id !== action.data.userId);
+    //             const mainPosts = [...state.mainPosts];
+    //             mainPosts[postIndex] = { ...post, Likers };
+    //             return {
+    //                 ...state,
+    //                 mainPosts,
+    //             };
+    //         }
+    //         case UNLIKE_POST_FAILURE: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case REMOVE_POST_REQUEST: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         case REMOVE_POST_SUCCESS: {
+    //             return {
+    //                 ...state,
+    //                 mainPosts: state.mainPosts.filter(v => v.id !== action.data),
+    //             };
+    //         }
+    //         case REMOVE_POST_FAILURE: {
+    //             return {
+    //                 ...state,
+    //             };
+    //         }
+    //         default : {
+    //             return{
+    //                 ...state,
+    //             }
+    //         }
+    //     };
+    // });
     return produce(state, (draft) => {
         switch (action.type) {
+            case UPLOAD_IMAGES_REQUEST: {
+                break;
+            }
+            case UPLOAD_IMAGES_SUCCESS: {
+                action.data.forEach((p) => {
+                    draft.imagePaths.push(p);
+                });
+                break;
+            }
+            case UPLOAD_IMAGES_FAILURE: {
+                break;
+            }
+            case REMOVE_IMAGE: {
+                const index = draft.imagePaths.findIndex((v, i) => i === action.index);
+                draft.imagePaths.splice(index, 1);
+                break;
+            }
             case ADD_POST_REQUEST: {
-                // return {
-                //     ...state,
-                //     isAddingPost: false,
-                //     postAdded: false,
-                //     isLogging: true,
-                // };
                 draft.isAddingPost = true;
-                draft.potAdded = false;
+                draft.addingPostErrorReason = '';
+                draft.postAdded = false;
                 break;
             }
             case ADD_POST_SUCCESS: {
-                // return {
-                //     ...state,
-                //     isAddingPost: true,
-                //     mainPosts: [action.data, ...state.mainPosts],
-                //     postAdded: true,
-                //     isLogging: false,
-                //     imagePaths: [],
-                // };
                 draft.isAddingPost = false;
-                draft.mainPosts.unshift(action.data); //unshift 배열에 새로운 배열 요소를 맨앞에 추가하고 길이를 반환
+                draft.mainPosts.unshift(action.data);
                 draft.postAdded = true;
                 draft.imagePaths = [];
                 break;
             }
             case ADD_POST_FAILURE: {
-                // return {
-                //     ...state,
-                //     isAddingPost: true,
-                //     addPostErrorReason: action.error,
-                //     isLogging: false,
-                // };
-                draft.isAddingPost = true;
+                draft.isAddingPost = false;
                 draft.addPostErrorReason = action.error;
-                draft.isLogging = false;
                 break;
             }
-            case LOAD_MAIN_POSTS_REQUEST:
-            case LOAD_HASHTAG_POSTS_REQUEST:
-            case LOAD_USER_POSTS_REQUEST: {
-                return {
-                    ...state,
-                    mainPosts: [],
-                };
-            }
-            case LOAD_MAIN_POSTS_SUCCESS:
-            case LOAD_HASHTAG_POSTS_SUCCESS:
-            case LOAD_USER_POSTS_SUCCESS: {
-                return {
-                    ...state,
-                    mainPosts: action.data,
-                };
-            }
-            case LOAD_MAIN_POSTS_FAILURE:
-            case LOAD_HASHTAG_POSTS_FAILURE:
-            case LOAD_USER_POSTS_FAILURE: {
-                return {
-                    ...state,
-                };
-            }
             case ADD_COMMENT_REQUEST: {
-                return {
-                    ...state,
-                    isAddingComment: true,
-                    addCommentErrorReason: '',
-                    commentAdded: false,
-
-                };
+                draft.isAddingComment = true;
+                draft.addCommentErrorReason = '';
+                draft.commentAdded = false;
+                break;
             }
             case ADD_COMMENT_SUCCESS: {
-                //불변성 유지
-                // const postIndex = state.mainPosts.findIndex(v => v.id=== action.data.postId);
-                // const post = state.mainPosts[postIndex];
-                // const Comments = [...post.Comments, action.data.comment];
-                // const mainPosts = [...state.mainPosts];
-                // mainPosts[postIndex] = {...post, Comments};
-                // return {
-                //     ...state,
-                //     isAddingComment: false,
-                //     mainPosts,
-                //     commentAdded: true,
-                // };
-
-                //immer 적용
-
                 const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
                 draft.mainPosts[postIndex].Comments.push(action.data.comment);
                 draft.isAddingComment = false;
@@ -170,114 +335,89 @@ const reducer = (state = initialState, action) => {
                 break;
             }
             case ADD_COMMENT_FAILURE: {
-                return {
-                    ...state,
-                    isAddingComment: false,
-                    addCommentErrorReason: action.error,
-                };
+                draft.isAddingComment = false;
+                draft.addingPostErrorReason = action.error;
+                break;
             }
-            case LOAD_COMMENTS_SUCCESS:{
-                // const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
-                // const post = state.mainPosts[postIndex];
-                // const Comments = action.data.comments;
-                // const mainPosts = [...state.mainPosts];
-                // mainPosts[postIndex] = { ...post, Comments };
-                // return {
-                //     ...state,
-                //     mainPosts,
-                // };
+            case LOAD_COMMENTS_SUCCESS: {
                 const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
                 draft.mainPosts[postIndex].Comments = action.data.comments;
-
+                break;
             }
-            case UPLOAD_IMAGES_REQUEST: {
-                return {
-                    ...state,
-                };
+            case LOAD_MAIN_POSTS_REQUEST:
+            case LOAD_HASHTAG_POSTS_REQUEST:
+            case LOAD_USER_POSTS_REQUEST: {
+                draft.mainPosts = !action.lastId ? [] : draft.mainPosts;
+                draft.hasMorePost = action.lastId ? draft.hasMorePost : true;
+                break;
             }
-            case UPLOAD_IMAGES_SUCCESS: {
-                return {
-                    ...state,
-                    imagePaths: [...state.imagePaths, ...action.data], //이미지 미리보기 경로
-                };
+            case LOAD_MAIN_POSTS_SUCCESS:
+            case LOAD_HASHTAG_POSTS_SUCCESS:
+            case LOAD_USER_POSTS_SUCCESS: {
+                action.data.forEach((d) => {
+                    draft.mainPosts.push(d);
+                });
+                draft.hasMorePost = action.data.length === 10;
+                break;
             }
-            case UPLOAD_IMAGES_FAILURE: {
-                return {
-                    ...state,
-                };
-            }
-            case REMOVE_IMAGE: {
-                return{
-                    ...state,
-                    imagePaths: state.imagePaths.filter((v, i) => i !== action.index),
-                }
+            case LOAD_MAIN_POSTS_FAILURE:
+            case LOAD_HASHTAG_POSTS_FAILURE:
+            case LOAD_USER_POSTS_FAILURE: {
+                break;
             }
             case LIKE_POST_REQUEST: {
-                return {
-                    ...state,
-                };
+                break;
             }
             case LIKE_POST_SUCCESS: {
-                const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
-                const post = state.mainPosts[postIndex];
-                const Likers = [{id: action.data.userId}, ...post.Likers];
-                const mainPosts = [...state.mainPosts];
-                mainPosts[postIndex] = { ...post, Likers };
-                return {
-                    ...state,
-                    mainPosts,
-                };
+                const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+                draft.mainPosts[postIndex].Likers.unshift({ id: action.data.userId });
+                break;
             }
             case LIKE_POST_FAILURE: {
-                return {
-                    ...state,
-                };
+                break;
             }
             case UNLIKE_POST_REQUEST: {
-                return {
-                    ...state,
-                };
+                break;
             }
             case UNLIKE_POST_SUCCESS: {
-                const postIndex = state.mainPosts.findIndex(v => v.id === action.data.postId);
-                const post = state.mainPosts[postIndex];
-                const Likers = post.Likers.filter(v => v.id !== action.data.userId);
-                const mainPosts = [...state.mainPosts];
-                mainPosts[postIndex] = { ...post, Likers };
-                return {
-                    ...state,
-                    mainPosts,
-                };
+                const postIndex = draft.mainPosts.findIndex(v => v.id === action.data.postId);
+                const likeIndex = draft.mainPosts[postIndex].Likers.findIndex(v => v.id === action.data.userId);
+                draft.mainPosts[postIndex].Likers.splice(likeIndex, 1);
+                break;
             }
             case UNLIKE_POST_FAILURE: {
-                return {
-                    ...state,
-                };
+                break;
+            }
+            case RETWEET_REQUEST: {
+                break;
+            }
+            case RETWEET_SUCCESS: {
+                draft.mainPosts.unshift(action.data);
+                break;
+            }
+            case RETWEET_FAILURE: {
+                break;
             }
             case REMOVE_POST_REQUEST: {
-                return {
-                    ...state,
-                };
+                break;
             }
             case REMOVE_POST_SUCCESS: {
-                return {
-                    ...state,
-                    mainPosts: state.mainPosts.filter(v => v.id !== action.data),
-                };
+                const index = draft.mainPosts.findIndex(v => v.id === action.data);
+                draft.mainPosts.splice(index, 1);
+                break;
             }
             case REMOVE_POST_FAILURE: {
-                return {
-                    ...state,
-                };
+                break;
             }
-            default : {
-                return{
-                    ...state,
-                }
+            case LOAD_POST_SUCCESS: {
+                draft.singlePost = action.data;
+                break;
             }
-        };
+            default: {
+                break;
+            }
+        }
     });
-
-}
+};
 //reducer와 initialState는 자주 쓰이므로 export 함
 export default reducer;

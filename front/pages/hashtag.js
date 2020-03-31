@@ -1,10 +1,27 @@
-import React, {useEffect} from "react";
+import React, {useCallback, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {LOAD_HASHTAG_POSTS_REQUEST} from "../reducers/post";
+import {LOAD_HASHTAG_POSTS_REQUEST, LOAD_MAIN_POSTS_REQUEST} from "../reducers/post";
 import PostCard from "../components/PostCard";
 
 const Hashtag = ({tag}) => {
-    const {mainPosts} = useSelector(state => state.post);
+    const dispatch = useDispatch();
+    const {mainPosts, hasMorePost} = useSelector(state => state.post);
+
+
+    const onScroll = useCallback(() => {
+        // console.log("현재 스크롤한 화면에 가장 윗부분에 위치: ", window.scrollY, " 제일 윗부분 부터 스크롤 제외한 부분까지의 높이:", document.documentElement.clientHeight, " 스크롤 가능한 제일 위에서 부터 제일 아래까지의 길이: ", document.documentElement.scrollHeight );
+        console.log(window.scrollY + document.documentElement.clientHeight, document.documentElement.scrollHeight - 300);
+        if(window.scrollY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 300){
+            if(hasMorePost){ //더 불러올 게시글이 있으면
+                console.log('infiniteScroll');
+                dispatch({ //onscroll 이벤트는 적은 시간동안 많이 발생하기 때문에 이부분이 여러번 실행됨 saga 에서 처리 => takeLatest 를 throttle 로 변경
+                    type: LOAD_HASHTAG_POSTS_REQUEST,
+                    lastId: mainPosts[mainPosts.length - 1].id, //불러온 게시물 중 마지막 게시물의 아이디
+                    data: tag,
+                });
+            }
+        }
+    }, [hasMorePost, mainPosts.length]);
     return (
         <div>
             {mainPosts.map( c => (

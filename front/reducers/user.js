@@ -11,6 +11,8 @@ export const initialState = { //초기값
     followingList: [], //팔로잉 리스트
     userInfo: null, //남의 정보
     isEditingNickName: false,
+    hasMoreFollower: false,
+    hasMoreFollowing: false,
 };
 
 //로그인하는 액션
@@ -67,6 +69,7 @@ export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 export const EDIT_NICKNAME_REQUEST = 'EDIT_NICKNAME_REQUEST';
 export const EDIT_NICKNAME_SUCCESS = 'EDIT_NICKNAME_SUCCESS';
 export const EDIT_NICKNAME_FAILURE = 'EDIT_NICKNAME_FAILURE';
+
 
 
 
@@ -221,6 +224,8 @@ const reducer = (state = initialState, action) => {
         case LOAD_FOLLOWERS_REQUEST : {
             return{
                 ...state,
+                hasMoreFollower: action.offset ? state.hasMoreFollower : true, //처음 데이터를 가져올 땐 더보기 버튼을 보여줌
+
             }
         }
         case LOAD_FOLLOWERS_SUCCESS : {
@@ -229,6 +234,7 @@ const reducer = (state = initialState, action) => {
                 //기존 팔로워리스트를 덮는게 아니라 추가하는 방식
                 // followerList: state.followerList.concat(action.data),
                 followerList: state.followerList.concat(action.data),
+                hasMoreFollower: action.data.length === 3,
             }
         }
         case LOAD_FOLLOWERS_FAILURE : {
@@ -239,6 +245,8 @@ const reducer = (state = initialState, action) => {
         case LOAD_FOLLOWINGS_REQUEST : {
             return{
                 ...state,
+                //마지막에 3개가 딱 맞아 떨어지게 남아있으면 더보기 버튼이 어쩔 수 없이 한번 더 생기게 됨 => 맨 처음에 db에서 데이터 전체 조회할 때 3으로 나눠서 더보기 할 때마다 카운팅하면 어쩔런지
+                hasMoreFollowing: action.offset ? state.hasMoreFollowing : true, //처음 데이터를 가져올 땐 더보기 버튼을 보여줌
             }
         }
         case LOAD_FOLLOWINGS_SUCCESS : {
@@ -247,6 +255,8 @@ const reducer = (state = initialState, action) => {
                 //기존 팔로워리스트를 덮는게 아니라 추가하는 방식
                 // followingList: state.followingList.concat(action.data),
                 followingList: state.followingList.concat(action.data),
+                hasMoreFollowing: action.data.length === 3,
+
             }
         }
         case LOAD_FOLLOWINGS_FAILURE : {
